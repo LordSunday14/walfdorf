@@ -287,7 +287,8 @@
         ];
 
         let activePlaces = [];
-        let currentIndex = 0;
+        let remainingPlaces = [];
+        let current = null;
         let score = 0;
 
         const map = L.map('map').setView([20, 0], 2);
@@ -314,6 +315,10 @@
                 return;
             }
 
+            // Zkopírujeme místa do zbývajících a zamícháme je
+            remainingPlaces = [...activePlaces];
+            shuffleArray(remainingPlaces);
+
             menuScreen.style.display = 'none';
             headerElem.style.display = 'flex';
             
@@ -323,24 +328,40 @@
             nextQuestion();
         }
 
+        // Pomocná funkce na náhodné promíchání pole
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
         function returnToMenu() {
             menuScreen.style.display = 'flex';
             headerElem.style.display = 'none';
         }
 
         function nextQuestion() {
-            currentIndex = Math.floor(Math.random() * activePlaces.length);
-            const current = activePlaces[currentIndex];
+            // Pokud už jsme prošli všechna místa, zamícháme je znovu
+            if (remainingPlaces.length === 0) {
+                alert("Skvělé! Prošel/a jsi všechna místa v této kategorii. Začínáme kolo znova!");
+                remainingPlaces = [...activePlaces];
+                shuffleArray(remainingPlaces);
+            }
+
+            // Vezmeme další v pořadí z promíchaného seznamu
+            current = remainingPlaces.pop();
             targetNameElem.innerText = `${current.name}`;
         }
 
         function showHint() {
-            const current = activePlaces[currentIndex];
-            alert(`💡 Nápověda: ${current.hint}`);
+            if (current) {
+                alert(`💡 Nápověda: ${current.hint}`);
+            }
         }
 
         function skipQuestion() {
-            const current = activePlaces[currentIndex];
+            if (!current) return;
             alert(`Nevadí! Správná odpověď byla: ${current.name}. Ukazuji na mapě.`);
             
             L.marker([current.lat, current.lng]).addTo(map)
@@ -351,23 +372,21 @@
         }
 
         map.on('click', function(e) {
-            if (menuScreen.style.display === 'flex') return;
+            if (menuScreen.style.display === 'flex' || !current) return;
 
             const clickedLat = e.latlng.lat;
             const clickedLng = e.latlng.lng;
-            
-            const target = activePlaces[currentIndex];
 
-            const latDiff = Math.abs(clickedLat - target.lat);
-            const lngDiff = Math.abs(clickedLng - target.lng);
+            const latDiff = Math.abs(clickedLat - current.lat);
+            const lngDiff = Math.abs(clickedLng - current.lng);
 
-            if (latDiff <= target.radius && lngDiff <= target.radius) {
-                alert(`Správně! Našel/a jsi: ${target.name}.`);
+            if (latDiff <= current.radius && lngDiff <= current.radius) {
+                alert(`Správně! Našel/a jsi: ${current.name}.`);
                 score++;
                 scoreElem.innerText = score;
                 
-                L.marker([target.lat, target.lng]).addTo(map)
-                    .bindPopup(`<b>${target.type}: ${target.name}</b>`)
+                L.marker([current.lat, current.lng]).addTo(map)
+                    .bindPopup(`<b>${current.type}: ${current.name}</b>`)
                     .openPopup();
 
                 nextQuestion();
