@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zeměpisný kvíz - Mapa s popisy</title>
+    <!-- Načtení stylů pro Leaflet mapu -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Google Fonts pro hezký moderní font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f8f9fa;
+        }
+        #header {
+            background: linear-gradient(135deg, #2c3e50, #4ca1af);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+        h2 {
+            margin: 0 0 10px 0;
+            font-weight: 500;
+            font-size: 1.4rem;
+        }
+        #target-card {
+            background: rgba(255, 255, 255, 0.15);
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
+            margin-bottom: 10px;
+        }
+        #target-name {
+            color: #ffd700;
+            font-weight: 600;
+        }
+        #scoreboard {
+            font-size: 1rem;
+            font-weight: 400;
+            background: rgba(0, 0, 0, 0.2);
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+        #map {
+            flex-grow: 1;
+            width: 100%;
+        }
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+            padding: 5px;
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header">
+        <h2>Najdi na mapě</h2>
+        <div id="target-card">
+            <span id="target-name">Načítám...</span>
+        </div>
+        <br>
+        <div id="scoreboard">Skóre: <span id="score" style="font-weight: 600; color: #ffd700;">0</span></div>
+    </div>
+
+    <!-- Kontejner pro mapu -->
+    <div id="map"></div>
+
+    <!-- Načtení knihovny Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const places = [
+            // --- Oceány a moře ---
+            { name: "Sev. led. oceán", type: "Oceán", lat: 80.0, lng: 0.0, radius: 15 },
+            { name: "Tichý oceán", type: "Oceán", lat: 0.0, lng: -160.0, radius: 25 },
+            { name: "Atlantský oceán", type: "Oceán", lat: 0.0, lng: -30.0, radius: 20 },
+            { name: "Indický oceán", type: "Oceán", lat: -20.0, lng: 80.0, radius: 20 },
+            { name: "Jižní led. oceán", type: "Oceán", lat: -65.0, lng: 0.0, radius: 15 },
+            { name: "Jaderské moře", type: "Moře", lat: 43.0, lng: 15.0, radius: 3 },
+            { name: "Černé moře", type: "Moře", lat: 43.4, lng: 34.0, radius: 4 },
+            { name: "Azovské moře", type: "Moře", lat: 46.1, lng: 37.0, radius: 2 },
+            { name: "Beringovo moře", type: "Moře", lat: 58.0, lng: -178.0, radius: 6 },
+            { name: "Laptěvů moře", type: "Moře", lat: 75.0, lng: 125.0, radius: 5 },
+            { name: "Karské moře", type: "Moře", lat: 75.0, lng: 65.0, radius: 5 },
+            { name: "Barentsovo moře", type: "Moře", lat: 75.5, lng: 40.0, radius: 6 },
+            { name: "Grónské moře", type: "Moře", lat: 75.0, lng: -10.0, radius: 6 },
+            { name: "Norské moře", type: "Moře", lat: 68.0, lng: 2.0, radius: 5 },
+            { name: "Středozemní moře", type: "Moře", lat: 35.0, lng: 18.0, radius: 8 },
+            { name: "Baltické moře", type: "Moře", lat: 57.0, lng: 20.0, radius: 4 },
+            { name: "Severní moře", type: "Moře", lat: 56.0, lng: 3.0, radius: 4 },
+            { name: "Rudé moře", type: "Moře", lat: 22.0, lng: 38.0, radius: 4 },
+
+            // --- Poloostrovy ---
+            { name: "Skandinávský poloostrov", type: "Poloostrov", lat: 63.0, lng: 14.0, radius: 6 },
+            { name: "Poloostrov Kola", type: "Poloostrov", lat: 67.5, lng: 36.0, radius: 3 },
+            { name: "Pyrenejský poloostrov", type: "Poloostrov", lat: 40.0, lng: -4.0, radius: 4 },
+            { name: "Apeninský poloostrov", type: "Poloostrov", lat: 42.0, lng: 12.5, radius: 3 },
+            { name: "Balkánský poloostrov", type: "Poloostrov", lat: 42.0, lng: 22.0, radius: 4 },
+            { name: "Malá Asie", type: "Poloostrov", lat: 39.0, lng: 35.0, radius: 4 },
+            { name: "Arabský poloostrov", type: "Poloostrov", lat: 24.0, lng: 45.0, radius: 6 },
+            { name: "Přední Indie", type: "Poloostrov", lat: 20.0, lng: 78.0, radius: 5 },
+            { name: "Malajský poloostrov", type: "Poloostrov", lat: 4.0, lng: 102.5, radius: 3 },
+            { name: "Korejský poloostrov", type: "Poloostrov", lat: 36.0, lng: 128.0, radius: 3 },
+            { name: "Kamčatka", type: "Poloostrov", lat: 57.0, lng: 160.0, radius: 4 },
+            { name: "Čukotka", type: "Poloostrov", lat: 66.0, lng: 175.0, radius: 5 },
+            { name: "Tajmyr", type: "Poloostrov", lat: 74.0, lng: 100.0, radius: 5 },
+            { name: "Somálský poloostrov", type: "Poloostrov", lat: 8.0, lng: 49.0, radius: 4 },
+            { name: "Yucatán", type: "Poloostrov", lat: 19.6, lng: -88.9, radius: 3 },
+            { name: "Florida", type: "Poloostrov", lat: 28.0, lng: -81.5, radius: 3 },
+            { name: "Labradorský poloostrov", type: "Poloostrov", lat: 53.0, lng: -65.0, radius: 5 },
+            { name: "Aljaška", type: "Poloostrov", lat: 64.0, lng: -152.0, radius: 6 },
+
+            // --- Ostrovy ---
+            { name: "Britské ostrovy", type: "Ostrov", lat: 54.0, lng: -3.0, radius: 4 },
+            { name: "Island", type: "Ostrov", lat: 64.9, lng: -19.0, radius: 3 },
+            { name: "Špicberky", type: "Ostrov", lat: 78.0, lng: 16.0, radius: 4 },
+            { name: "Nová země", type: "Ostrov", lat: 74.0, lng: 56.0, radius: 4 },
+            { name: "Severní země", type: "Ostrov", lat: 79.5, lng: 97.0, radius: 3 },
+            { name: "Novosibirské ostrovy", type: "Ostrov", lat: 75.0, lng: 145.0, radius: 4 },
+            { name: "Sachalin", type: "Ostrov", lat: 51.0, lng: 143.0, radius: 3 },
+            { name: "Aleuty", type: "Ostrov", lat: 52.0, lng: -175.0, radius: 5 },
+            { name: "Hokkaidó", type: "Ostrov", lat: 43.3, lng: 142.8, radius: 3 },
+            { name: "Tchaj-wan", type: "Ostrov", lat: 23.7, lng: 121.0, radius: 2 },
+            { name: "Filipíny", type: "Ostrov", lat: 13.0, lng: 122.0, radius: 4 },
+            { name: "Sumatra", type: "Ostrov", lat: 0.5, lng: 102.0, radius: 4 },
+            { name: "Kalimantan (Borneo)", type: "Ostrov", lat: 0.0, lng: 114.0, radius: 4 },
+            { name: "Sulawesi (Celebes)", type: "Ostrov", lat: -2.0, lng: 121.0, radius: 3 },
+            { name: "Jáva", type: "Ostrov", lat: -7.5, lng: 111.0, radius: 3 },
+            { name: "Nová Guinea", type: "Ostrov", lat: -4.0, lng: 138.0, radius: 5 },
+            { name: "Mikronésie", type: "Ostrov", lat: 7.4, lng: 151.8, radius: 6 },
+            { name: "Melanésie", type: "Ostrov", lat: -9.0, lng: 160.0, radius: 6 },
+            { name: "Šalamounovy ostrovy", type: "Ostrov", lat: -9.4, lng: 160.0, radius: 3 },
+            { name: "Fidži", type: "Ostrov", lat: -17.7, lng: 178.0, radius: 3 },
+            { name: "Nová Kaledonie", type: "Ostrov", lat: -21.5, lng: 165.5, radius: 3 },
+            { name: "Tasmánie", type: "Ostrov", lat: -42.0, lng: 146.5, radius: 3 },
+            { name: "Nový Zéland", type: "Ostrov", lat: -41.0, lng: 174.0, radius: 4 },
+            { name: "Ceylon (Srí Lanka)", type: "Ostrov", lat: 7.8, lng: 80.7, radius: 2 },
+            { name: "Seychely", type: "Ostrov", lat: -4.6, lng: 55.4, radius: 2 },
+            { name: "Madagaskar", type: "Ostrov", lat: -20.0, lng: 47.0, radius: 4 },
+            { name: "Kypr", type: "Ostrov", lat: 35.1, lng: 33.4, radius: 2 },
+            { name: "Sicílie", type: "Ostrov", lat: 37.5, lng: 14.0, radius: 2 },
+            { name: "Kanadské ostrovy", type: "Ostrov", lat: 75.0, lng: -100.0, radius: 8 },
+            { name: "Falklandy", type: "Ostrov", lat: -51.7, lng: -59.5, radius: 3 },
+            { name: "Kuba", type: "Ostrov", lat: 21.5, lng: -78.0, radius: 3 },
+            { name: "Velké Antily", type: "Ostrov", lat: 19.0, lng: -75.0, radius: 4 },
+            { name: "Okinawu", type: "Ostrov", lat: 26.5, lng: 127.9, radius: 2 },
+            { name: "Bahamy", type: "Ostrov", lat: 24.2, lng: -76.0, radius: 3 },
+            { name: "Bermudy", type: "Ostrov", lat: 32.3, lng: -64.7, radius: 2 },
+            { name: "Ostrovy královny Alžběty", type: "Ostrov", lat: 78.0, lng: -95.0, radius: 5 },
+            { name: "Havajské ostrovy", type: "Ostrov", lat: 21.3, lng: -157.8, radius: 3 },
+            { name: "Galapágy", type: "Ostrov", lat: -0.8, lng: -91.5, radius: 2 },
+            { name: "Velikonoční ostrov", type: "Ostrov", lat: -27.1, lng: -109.3, radius: 2 },
+
+            // --- Zálivy a průlivy ---
+            { name: "Bengálský záliv", type: "Záliv", lat: 15.0, lng: 88.0, radius: 4 },
+            { name: "Guinejský záliv", type: "Záliv", lat: 2.0, lng: 4.0, radius: 4 },
+            { name: "Mexický záliv", type: "Záliv", lat: 25.0, lng: -90.0, radius: 4 },
+            { name: "Aljašský záliv", type: "Záliv", lat: 57.0, lng: -144.0, radius: 4 },
+            { name: "Hudsonův záliv", type: "Záliv", lat: 60.0, lng: -85.0, radius: 5 },
+            { name: "Beringův průliv", type: "Průliv", lat: 65.8, lng: -168.9, radius: 3 },
+            { name: "Průliv al-Mandab", type: "Průliv", lat: 12.6, lng: 43.3, radius: 2 },
+            { name: "Hormuzský průliv", type: "Průliv", lat: 26.5, lng: 56.2, radius: 2 },
+            { name: "Suezský průplav", type: "Průplav", lat: 30.5, lng: 32.3, radius: 2 },
+            { name: "Magellanův průliv", type: "Průliv", lat: -53.5, lng: -70.9, radius: 3 },
+            { name: "Panamský průplav", type: "Průplav", lat: 9.1, lng: -79.6, radius: 2 },
+            { name: "Bospor a Dardanely", type: "Průliv", lat: 41.0, lng: 29.0, radius: 2 },
+            { name: "Gibraltarský průliv", type: "Průliv", lat: 35.9, lng: -5.3, radius: 2 },
+
+            // --- Pohoří a hory ---
+            { name: "Himaláje (Mt. Everest)", type: "Pohoří / Hora", lat: 27.9, lng: 86.9, radius: 3 },
+            { name: "Ťan-šan", type: "Pohoří", lat: 42.0, lng: 80.0, radius: 4 },
+            { name: "Pamír", type: "Pohoří", lat: 38.9, lng: 72.3, radius: 3 },
+            { name: "Tibetská plošina", type: "Plošina", lat: 32.0, lng: 88.0, radius: 6 },
+            { name: "Kavkaz (Elbrus)", type: "Pohoří", lat: 43.3, lng: 42.4, radius: 3 },
+            { name: "Ural", type: "Pohoří", lat: 60.0, lng: 60.0, radius: 6 },
+            { name: "Atlas", type: "Pohoří", lat: 31.5, lng: -6.0, radius: 4 },
+            { name: "Dračí hory", type: "Pohoří", lat: -29.0, lng: 29.5, radius: 3 },
+            { name: "Etiopská vysočina", type: "Vysočina", lat: 9.0, lng: 38.0, radius: 4 },
+            { name: "Kilimandžáro", type: "Hora", lat: -3.06, lng: 37.35, radius: 2 },
+            { name: "Andy (Aconcagua)", type: "Pohoří", lat: -32.6, lng: -70.0, radius: 6 },
+            { name: "Kordillery (Mt. McKinley / Denali)", type: "Pohoří", lat: 63.0, lng: -151.0, radius: 5 },
+            { name: "Skalnaté hory", type: "Pohoří", lat: 45.0, lng: -110.0, radius: 5 },
+            { name: "Appalačské pohoří", type: "Pohoří", lat: 38.0, lng: -80.0, radius: 5 },
+            { name: "Pyreneje", type: "Pohoří", lat: 42.6, lng: 0.8, radius: 3 },
+            { name: "Mt. Blanc (Alpy)", type: "Pohoří", lat: 45.8, lng: 6.8, radius: 3 },
+            { name: "Skandinávské pohoří", type: "Pohoří", lat: 62.0, lng: 9.0, radius: 5 },
+
+            // --- Řeky ---
+            { name: "Volha", type: "Řeka", lat: 46.5, lng: 48.5, radius: 4 },
+            { name: "Dunaj", type: "Řeka", lat: 45.2, lng: 29.6, radius: 4 },
+            { name: "Labe", type: "Řeka", lat: 53.8, lng: 8.7, radius: 3 },
+            { name: "Rýn", type: "Řeka", lat: 51.9, lng: 4.1, radius: 3 },
+            { name: "Ob", type: "Řeka", lat: 66.5, lng: 73.0, radius: 5 },
+            { name: "Jenisej", type: "Řeka", lat: 69.5, lng: 84.6, radius: 5 },
+            { name: "Lena", type: "Řeka", lat: 72.4, lng: 126.5, radius: 5 },
+            { name: "Amur", type: "Řeka", lat: 53.5, lng: 141.0, radius: 4 },
+            { name: "Huang He (Žlutá ř.)", type: "Řeka", lat: 37.3, lng: 118.3, radius: 4 },
+            { name: "Chang Jiang (Dlouhá ř.)", type: "Řeka", lat: 31.4, lng: 121.5, radius: 4 },
+            { name: "Mekong", type: "Řeka", lat: 10.0, lng: 106.6, radius: 4 },
+            { name: "Ganga", type: "Řeka", lat: 22.5, lng: 89.0, radius: 4 },
+            { name: "Indus", type: "Řeka", lat: 24.5, lng: 67.4, radius: 4 },
+            { name: "Tigris a Eufrat", type: "Řeka", lat: 31.0, lng: 47.5, radius: 3 },
+            { name: "Nil", type: "Řeka", lat: 30.1, lng: 31.1, radius: 5 },
+            { name: "Kongo", type: "Řeka", lat: -6.0, lng: 12.4, radius: 4 },
+            { name: "Zambezi", type: "Řeka", lat: -18.8, lng: 36.3, radius: 4 },
+            { name: "Niger", type: "Řeka", lat: 5.3, lng: 6.4, radius: 4 },
+            { name: "Orange", type: "Řeka", lat: -28.6, lng: 16.5, radius: 3 },
+            { name: "Paraná a Uruguay", type: "Řeka", lat: -34.5, lng: -58.3, radius: 4 },
+            { name: "Amazonka", type: "Řeka", lat: -0.1, lng: -50.0, radius: 5 },
+            { name: "Orinoco", type: "Řeka", lat: 8.6, lng: -62.3, radius: 4 },
+            { name: "Mississippi", type: "Řeka", lat: 29.1, lng: -89.2, radius: 4 },
+            { name: "Rio Grande", type: "Řeka", lat: 25.9, lng: -97.1, radius: 3 },
+            { name: "Yukon", type: "Řeka", lat: 62.6, lng: -164.8, radius: 4 },
+
+            // --- Jezera ---
+            { name: "Ladožské jezero", type: "Jezero", lat: 61.0, lng: 31.5, radius: 3 },
+            { name: "Oněžské jezero", type: "Jezero", lat: 61.6, lng: 35.5, radius: 3 },
+            { name: "Aralské jezero", type: "Jezero", lat: 45.0, lng: 60.0, radius: 4 },
+            { name: "Kaspické moře (Jezero)", type: "Jezero", lat: 42.0, lng: 50.0, radius: 5 },
+            { name: "Bajkal", type: "Jezero", lat: 53.5, lng: 108.1, radius: 3 },
+            { name: "Viktoriino jezero", type: "Jezero", lat: -1.0, lng: 33.0, radius: 3 },
+            { name: "Tanganika", type: "Jezero", lat: -6.5, lng: 29.5, radius: 3 },
+            { name: "Malawi", type: "Jezero", lat: -12.2, lng: 34.4, radius: 3 },
+            { name: "Titicaca", type: "Jezero", lat: -15.8, lng: -69.3, radius: 3 },
+            { name: "Ontario", type: "Jezero", lat: 43.7, lng: -78.0, radius: 2 },
+            { name: "Huronské jezero", type: "Jezero", lat: 44.8, lng: -82.4, radius: 3 },
+            { name: "Eriejské jezero", type: "Jezero", lat: 42.2, lng: -81.2, radius: 3 },
+            { name: "Michiganské jezero", type: "Jezero", lat: 44.0, lng: -87.0, radius: 3 },
+            { name: "Hořejší jezero", type: "Jezero", lat: 47.7, lng: -87.5, radius: 3 },
+            { name: "Winnipežské jezero", type: "Jezero", lat: 52.1, lng: -97.8, radius: 3 },
+            { name: "Velké Otročí jezero", type: "Jezero", lat: 61.3, lng: -114.3, radius: 3 },
+            { name: "Velké Medvědí jezero", type: "Jezero", lat: 65.7, lng: -121.0, radius: 3 }
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+
+        const map = L.map('map').setView([20, 0], 2);
+
+        // Standardní OpenStreetMap podklad obsahující podrobné popisky států, měst, hor a vodstev v češtině/angličtině
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap přispěvatelé'
+        }).addTo(map);
+
+        const targetNameElem = document.getElementById('target-name');
+        const scoreElem = document.getElementById('score');
+
+        function nextQuestion() {
+            currentIndex = Math.floor(Math.random() * places.length);
+            const current = places[currentIndex];
+            targetNameElem.innerText = `${current.type}: ${current.name}`;
+        }
+
+        map.on('click', function(e) {
+            const clickedLat = e.latlng.lat;
+            const clickedLng = e.latlng.lng;
+            
+            const target = places[currentIndex];
+
+            const latDiff = Math.abs(clickedLat - target.lat);
+            const lngDiff = Math.abs(clickedLng - target.lng);
+
+            if (latDiff <= target.radius && lngDiff <= target.radius) {
+                alert(`Správně! Našel/a jsi ${target.type}: ${target.name}.`);
+                score++;
+                scoreElem.innerText = score;
+                
+                L.marker([target.lat, target.lng]).addTo(map)
+                    .bindPopup(`<b>${target.type}: ${target.name}</b>`)
+                    .openPopup();
+
+                nextQuestion();
+            } else {
+                alert(`Bohužel vedle! Zkus hledat lépe.`);
+            }
+        });
+
+        nextQuestion();
+    </script>
+
+</body>
+</html>
