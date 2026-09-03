@@ -3,64 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zeměpisný kvíz - Mapa s popisy</title>
-    <!-- Načtení stylů pro Leaflet mapu -->
+    <title>Zeměpisný kvíz - Hledání na mapě</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Google Fonts pro hezký moderní font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             height: 100vh;
-            background-color: #f8f9fa;
+            background-color: #f3f4f6;
         }
         #header {
-            background: linear-gradient(135deg, #2c3e50, #4ca1af);
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
             color: white;
-            padding: 20px;
+            padding: 16px 20px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
             z-index: 1000;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
+            border-bottom-left-radius: 28px;
+            border-bottom-right-radius: 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
         }
         h2 {
-            margin: 0 0 10px 0;
-            font-weight: 500;
-            font-size: 1.4rem;
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.25rem;
+            letter-spacing: 0.5px;
         }
         #target-card {
             background: rgba(255, 255, 255, 0.15);
-            display: inline-block;
-            padding: 8px 20px;
-            border-radius: 30px;
-            backdrop-filter: blur(5px);
-            margin-bottom: 10px;
+            padding: 8px 24px;
+            border-radius: 50px;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3);
         }
         #target-name {
-            color: #ffd700;
-            font-weight: 600;
+            color: #fde047;
+            font-weight: 700;
+            font-size: 1.1rem;
         }
         #scoreboard {
-            font-size: 1rem;
-            font-weight: 400;
-            background: rgba(0, 0, 0, 0.2);
-            display: inline-block;
-            padding: 5px 15px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 4px 16px;
             border-radius: 20px;
         }
         #map {
             flex-grow: 1;
             width: 100%;
         }
+        /* Zaoblené a hezčí vyskakovací okno na mapě */
         .leaflet-popup-content-wrapper {
-            border-radius: 12px;
-            padding: 5px;
-            font-family: 'Poppins', sans-serif;
+            border-radius: 16px;
+            padding: 6px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -71,14 +76,11 @@
         <div id="target-card">
             <span id="target-name">Načítám...</span>
         </div>
-        <br>
-        <div id="scoreboard">Skóre: <span id="score" style="font-weight: 600; color: #ffd700;">0</span></div>
+        <div id="scoreboard">Skóre: <span id="score" style="font-weight: 700; color: #fde047;">0</span></div>
     </div>
 
-    <!-- Kontejner pro mapu -->
     <div id="map"></div>
 
-    <!-- Načtení knihovny Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const places = [
@@ -195,101 +197,4 @@
             { name: "Appalačské pohoří", type: "Pohoří", lat: 38.0, lng: -80.0, radius: 5 },
             { name: "Pyreneje", type: "Pohoří", lat: 42.6, lng: 0.8, radius: 3 },
             { name: "Mt. Blanc (Alpy)", type: "Pohoří", lat: 45.8, lng: 6.8, radius: 3 },
-            { name: "Skandinávské pohoří", type: "Pohoří", lat: 62.0, lng: 9.0, radius: 5 },
-
-            // --- Řeky ---
-            { name: "Volha", type: "Řeka", lat: 46.5, lng: 48.5, radius: 4 },
-            { name: "Dunaj", type: "Řeka", lat: 45.2, lng: 29.6, radius: 4 },
-            { name: "Labe", type: "Řeka", lat: 53.8, lng: 8.7, radius: 3 },
-            { name: "Rýn", type: "Řeka", lat: 51.9, lng: 4.1, radius: 3 },
-            { name: "Ob", type: "Řeka", lat: 66.5, lng: 73.0, radius: 5 },
-            { name: "Jenisej", type: "Řeka", lat: 69.5, lng: 84.6, radius: 5 },
-            { name: "Lena", type: "Řeka", lat: 72.4, lng: 126.5, radius: 5 },
-            { name: "Amur", type: "Řeka", lat: 53.5, lng: 141.0, radius: 4 },
-            { name: "Huang He (Žlutá ř.)", type: "Řeka", lat: 37.3, lng: 118.3, radius: 4 },
-            { name: "Chang Jiang (Dlouhá ř.)", type: "Řeka", lat: 31.4, lng: 121.5, radius: 4 },
-            { name: "Mekong", type: "Řeka", lat: 10.0, lng: 106.6, radius: 4 },
-            { name: "Ganga", type: "Řeka", lat: 22.5, lng: 89.0, radius: 4 },
-            { name: "Indus", type: "Řeka", lat: 24.5, lng: 67.4, radius: 4 },
-            { name: "Tigris a Eufrat", type: "Řeka", lat: 31.0, lng: 47.5, radius: 3 },
-            { name: "Nil", type: "Řeka", lat: 30.1, lng: 31.1, radius: 5 },
-            { name: "Kongo", type: "Řeka", lat: -6.0, lng: 12.4, radius: 4 },
-            { name: "Zambezi", type: "Řeka", lat: -18.8, lng: 36.3, radius: 4 },
-            { name: "Niger", type: "Řeka", lat: 5.3, lng: 6.4, radius: 4 },
-            { name: "Orange", type: "Řeka", lat: -28.6, lng: 16.5, radius: 3 },
-            { name: "Paraná a Uruguay", type: "Řeka", lat: -34.5, lng: -58.3, radius: 4 },
-            { name: "Amazonka", type: "Řeka", lat: -0.1, lng: -50.0, radius: 5 },
-            { name: "Orinoco", type: "Řeka", lat: 8.6, lng: -62.3, radius: 4 },
-            { name: "Mississippi", type: "Řeka", lat: 29.1, lng: -89.2, radius: 4 },
-            { name: "Rio Grande", type: "Řeka", lat: 25.9, lng: -97.1, radius: 3 },
-            { name: "Yukon", type: "Řeka", lat: 62.6, lng: -164.8, radius: 4 },
-
-            // --- Jezera ---
-            { name: "Ladožské jezero", type: "Jezero", lat: 61.0, lng: 31.5, radius: 3 },
-            { name: "Oněžské jezero", type: "Jezero", lat: 61.6, lng: 35.5, radius: 3 },
-            { name: "Aralské jezero", type: "Jezero", lat: 45.0, lng: 60.0, radius: 4 },
-            { name: "Kaspické moře (Jezero)", type: "Jezero", lat: 42.0, lng: 50.0, radius: 5 },
-            { name: "Bajkal", type: "Jezero", lat: 53.5, lng: 108.1, radius: 3 },
-            { name: "Viktoriino jezero", type: "Jezero", lat: -1.0, lng: 33.0, radius: 3 },
-            { name: "Tanganika", type: "Jezero", lat: -6.5, lng: 29.5, radius: 3 },
-            { name: "Malawi", type: "Jezero", lat: -12.2, lng: 34.4, radius: 3 },
-            { name: "Titicaca", type: "Jezero", lat: -15.8, lng: -69.3, radius: 3 },
-            { name: "Ontario", type: "Jezero", lat: 43.7, lng: -78.0, radius: 2 },
-            { name: "Huronské jezero", type: "Jezero", lat: 44.8, lng: -82.4, radius: 3 },
-            { name: "Eriejské jezero", type: "Jezero", lat: 42.2, lng: -81.2, radius: 3 },
-            { name: "Michiganské jezero", type: "Jezero", lat: 44.0, lng: -87.0, radius: 3 },
-            { name: "Hořejší jezero", type: "Jezero", lat: 47.7, lng: -87.5, radius: 3 },
-            { name: "Winnipežské jezero", type: "Jezero", lat: 52.1, lng: -97.8, radius: 3 },
-            { name: "Velké Otročí jezero", type: "Jezero", lat: 61.3, lng: -114.3, radius: 3 },
-            { name: "Velké Medvědí jezero", type: "Jezero", lat: 65.7, lng: -121.0, radius: 3 }
-        ];
-
-        let currentIndex = 0;
-        let score = 0;
-
-        const map = L.map('map').setView([20, 0], 2);
-
-        // Standardní OpenStreetMap podklad obsahující podrobné popisky států, měst, hor a vodstev v češtině/angličtině
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '© OpenStreetMap přispěvatelé'
-        }).addTo(map);
-
-        const targetNameElem = document.getElementById('target-name');
-        const scoreElem = document.getElementById('score');
-
-        function nextQuestion() {
-            currentIndex = Math.floor(Math.random() * places.length);
-            const current = places[currentIndex];
-            targetNameElem.innerText = `${current.type}: ${current.name}`;
-        }
-
-        map.on('click', function(e) {
-            const clickedLat = e.latlng.lat;
-            const clickedLng = e.latlng.lng;
-            
-            const target = places[currentIndex];
-
-            const latDiff = Math.abs(clickedLat - target.lat);
-            const lngDiff = Math.abs(clickedLng - target.lng);
-
-            if (latDiff <= target.radius && lngDiff <= target.radius) {
-                alert(`Správně! Našel/a jsi ${target.type}: ${target.name}.`);
-                score++;
-                scoreElem.innerText = score;
-                
-                L.marker([target.lat, target.lng]).addTo(map)
-                    .bindPopup(`<b>${target.type}: ${target.name}</b>`)
-                    .openPopup();
-
-                nextQuestion();
-            } else {
-                alert(`Bohužel vedle! Zkus hledat lépe.`);
-            }
-        });
-
-        nextQuestion();
-    </script>
-
-</body>
-</html>
+            { name: "Skandinávské pohoří", type: "Pohoří", lat: 6
