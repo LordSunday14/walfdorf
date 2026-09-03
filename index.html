@@ -11,17 +11,19 @@
             --bg-body: #111827;
             --bg-header: linear-gradient(135deg, #1e3a8a, #3b82f6);
             --text-color: #f9fafb;
-            --card-bg: rgba(255, 255, 255, 0.1);
-            --border-color: rgba(255, 255, 255, 0.2);
-            --btn-bg: rgba(255, 255, 255, 0.15);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --btn-bg: rgba(255, 255, 255, 0.07);
+            --btn-hover: rgba(255, 255, 255, 0.15);
         }
         :root[data-theme="light"] {
             --bg-body: #f3f4f6;
             --bg-header: linear-gradient(135deg, #2563eb, #60a5fa);
             --text-color: #1f2937;
             --card-bg: rgba(255, 255, 255, 0.85);
-            --border-color: rgba(0, 0, 0, 0.15);
-            --btn-bg: rgba(0, 0, 0, 0.05);
+            --border-color: rgba(0, 0, 0, 0.08);
+            --btn-bg: rgba(0, 0, 0, 0.03);
+            --btn-hover: rgba(0, 0, 0, 0.08);
         }
 
         body {
@@ -31,54 +33,85 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
+        /* VYLEPŠENÉ ÚVODNÍ MENU */
         #menu-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #1e3a8a, #7c3aed);
+            background: linear-gradient(135deg, #0f172a, #1e1b4b, #311042);
             z-index: 2000; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; color: white;
-            padding: 20px; box-sizing: border-box; text-align: center; overflow-y: auto;
+            align-items: center; justify-content: flex-start; color: white;
+            padding: 24px 16px; box-sizing: border-box; text-align: center; overflow-y: auto;
         }
-        #menu-screen h1 { margin-bottom: 5px; font-size: 1.8rem; }
-        #menu-screen p { margin-bottom: 20px; font-size: 0.95rem; opacity: 0.9; }
+
+        .menu-top-bar {
+            width: 100%; max-width: 480px; display: flex; justify-content: flex-end; margin-bottom: 10px;
+        }
+
+        #menu-screen h1 { 
+            margin: 10px 0 4px 0; font-size: 2.1rem; font-weight: 700; 
+            letter-spacing: -0.5px; background: linear-gradient(to right, #60a5fa, #fde047);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        #menu-screen > p { margin: 0 0 20px 0; font-size: 0.95rem; opacity: 0.8; }
+
+        .menu-container {
+            width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 14px; padding-bottom: 20px;
+        }
+
         .menu-section {
-            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 15px; border-radius: 16px; width: 100%; max-width: 420px;
-            margin-bottom: 12px; backdrop-filter: blur(5px); box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 16px; border-radius: 20px; width: 100%; box-sizing: border-box;
+            backdrop-filter: blur(12px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
-        .menu-section h2 { font-size: 1.05rem; margin-top: 0; color: #fde047; }
+        .menu-section h2 { font-size: 1.05rem; margin: 0 0 10px 0; color: #fde047; text-align: left; display: flex; align-items: center; gap: 8px; }
+        
         .category-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
         }
+        
         .btn-menu {
-            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white; padding: 8px; border-radius: 8px; font-size: 0.8rem;
-            font-weight: 600; cursor: pointer; transition: all 0.2s ease;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12);
+            color: white; padding: 10px 12px; border-radius: 10px; font-size: 0.82rem;
+            font-weight: 500; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Plus Jakarta Sans', sans-serif; text-align: left; display: flex; align-items: center; justify-content: space-between;
         }
-        .btn-menu:hover { background: white; color: #1e3a8a; transform: translateY(-2px); }
-        .btn-menu.full { grid-column: 1 / -1; background: #fde047; color: #1e3a8a; border-color: #facc15; }
-        .btn-menu.full:hover { background: #facc15; }
-        .btn-menu.game { background: #2563eb; border-color: #3b82f6; width: 100%; margin-top: 5px; }
-        .btn-menu.game:hover { background: #1d4ed8; color: white; }
+        .btn-menu::after { content: '›'; opacity: 0.5; font-size: 1rem; transition: transform 0.2s; }
+        .btn-menu:hover { background: rgba(255, 255, 255, 0.16); border-color: rgba(255, 255, 255, 0.25); transform: translateY(-1px); }
+        .btn-menu:hover::after { opacity: 1; transform: translateX(2px); }
+        
+        .btn-menu.full { 
+            grid-column: 1 / -1; background: linear-gradient(135deg, #f59e0b, #d97706); 
+            color: #ffffff; border: none; font-weight: 650; justify-content: center; text-align: center;
+        }
+        .btn-menu.full::after { display: none; }
+        .btn-menu.full:hover { background: linear-gradient(135deg, #fbbf24, #b45309); color: white; }
+
+        .btn-menu.game { 
+            background: linear-gradient(135deg, #2563eb, #1d4ed8); border: none; 
+            width: 100%; margin-top: 4px; justify-content: center; text-align: center; font-weight: 650; font-size: 0.95rem; padding: 12px;
+        }
+        .btn-menu.game::after { display: none; }
+        .btn-menu.game:hover { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
 
         #name-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7); z-index: 3000; display: none;
+            background: rgba(0, 0, 0, 0.75); z-index: 3000; display: none;
             align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;
+            backdrop-filter: blur(5px);
         }
         .modal-content {
-            background: #1e293b; color: white; padding: 25px; border-radius: 16px;
-            width: 100%; max-width: 350px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            background: #1e293b; color: white; padding: 25px; border-radius: 20px;
+            width: 100%; max-width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         .modal-content h3 { margin-top: 0; color: #fde047; }
         .modal-content select {
-            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #475569;
+            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #475569;
             background: #0f172a; color: white; font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 0.95rem; margin: 15px 0; outline: none;
+            font-size: 0.95rem; margin: 15px 0; outline: none; cursor: pointer;
         }
         .modal-content button {
-            background: #2563eb; color: white; border: none; padding: 10px 20px;
-            border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%;
+            background: #2563eb; color: white; border: none; padding: 12px 20px;
+            border-radius: 10px; font-weight: 600; cursor: pointer; width: 100%;
             font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.2s;
         }
         .modal-content button:hover { background: #1d4ed8; }
@@ -108,42 +141,49 @@
         #map { flex-grow: 1; width: 100%; }
 
         #leaderboard-preview {
-            font-size: 0.85rem; max-height: 100px; overflow-y: auto; text-align: left; margin-top: 8px;
+            font-size: 0.85rem; max-height: 120px; overflow-y: auto; text-align: left; margin-top: 10px;
+            padding-right: 2px;
         }
-        .lb-item { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .lb-item { display: flex; justify-content: space-between; padding: 4px 6px; border-bottom: 1px solid rgba(255,255,255,0.06); border-radius: 6px; }
+        .lb-item:hover { background: rgba(255,255,255,0.04); }
     </style>
 </head>
 <body>
 
     <!-- ÚVODNÍ MENU -->
     <div id="menu-screen">
-        <div style="position: absolute; top: 15px; right: 15px;">
-            <button class="btn-menu" onclick="toggleTheme()" style="padding: 6px 12px; font-size: 0.8rem;">🌓 Vzhled</button>
+        <div class="menu-top-bar">
+            <button class="btn-menu" onclick="toggleTheme()" style="padding: 6px 12px; font-size: 0.8rem; width: auto; justify-content: center;">🌓 Vzhled</button>
         </div>
+        
         <h1>🌍 Zeměpisný kvíz</h1>
-        <p>Vyber si režim, jak chceš hrát:</p>
+        <p>Vyber si režim, jak chceš hrát</p>
 
-        <div class="menu-section">
-            <h2>☕ Pohodový režim (výběr kategorií)</h2>
-            <div class="category-grid">
-                <button class="btn-menu" onclick="startRelaxGame('Oceány a moře')">Oceány a moře</button>
-                <button class="btn-menu" onclick="startRelaxGame('Poloostrovy')">Poloostrovy</button>
-                <button class="btn-menu" onclick="startRelaxGame('Ostrovy')">Ostrovy</button>
-                <button class="btn-menu" onclick="startRelaxGame('Zálivy a průlivy')">Zálivy a průlivy</button>
-                <button class="btn-menu" onclick="startRelaxGame('Pohoří a hory')">Pohoří a hory</button>
-                <button class="btn-menu" onclick="startRelaxGame('Řeky')">Řeky</button>
-                <button class="btn-menu" onclick="startRelaxGame('Jezera')">Jezera</button>
-                <button class="btn-menu full" onclick="startRelaxGame('Vše')">🌟 Všechna místa dohromady</button>
+        <div class="menu-container">
+            <!-- SOUTĚŽNÍ REŽIM (dán nahoru, protože je atraktivnější) -->
+            <div class="menu-section" style="border-color: rgba(253, 224, 71, 0.2); background: rgba(253, 224, 71, 0.03);">
+                <h2>🏆 Soutěžní Game Mode</h2>
+                <p style="font-size: 0.78rem; margin: 0 0 10px 0; opacity: 0.75; text-align: left;">60 sekund na čas + zápis do žebříčku třídy.</p>
+                <button class="btn-menu game" onclick="startCompetitionGame()">Spustit soutěž 🚀</button>
+                
+                <div id="leaderboard-preview">
+                    <div style="text-align: center; opacity: 0.7; padding: 10px;">Načítám žebříček...</div>
+                </div>
             </div>
-        </div>
 
-        <div class="menu-section">
-            <h2>🏆 Soutěžní Game Mode</h2>
-            <p style="font-size: 0.75rem; margin: 0 0 8px 0; opacity: 0.8;">60 sekund na čas + zápis do žebříčku třídy.</p>
-            <button class="btn-menu game" onclick="startCompetitionGame()">Spustit soutěž 🚀</button>
-            
-            <div id="leaderboard-preview">
-                <div style="text-align: center; opacity: 0.7;">Načítám žebříček...</div>
+            <!-- POHODOVÝ REŽIM -->
+            <div class="menu-section">
+                <h2>☕ Pohodový režim</h2>
+                <div class="category-grid">
+                    <button class="btn-menu" onclick="startRelaxGame('Oceány a moře')">Oceány a moře</button>
+                    <button class="btn-menu" onclick="startRelaxGame('Poloostrovy')">Poloostrovy</button>
+                    <button class="btn-menu" onclick="startRelaxGame('Ostrovy')">Ostrovy</button>
+                    <button class="btn-menu" onclick="startRelaxGame('Zálivy a průlivy')">Zálivy a průlivy</button>
+                    <button class="btn-menu" onclick="startRelaxGame('Pohoří a hory')">Pohoří a hory</button>
+                    <button class="btn-menu" onclick="startRelaxGame('Řeky')">Řeky</button>
+                    <button class="btn-menu" onclick="startRelaxGame('Jezera')">Jezera</button>
+                    <button class="btn-menu full" onclick="startRelaxGame('Vše')">🌟 Všechna místa dohromady</button>
+                </div>
             </div>
         </div>
     </div>
@@ -209,7 +249,6 @@
                 <button class="btn-action" onclick="toggleTheme()" title="Přepnout vzhled">🌓</button>
             </div>
         </div>
-        <!-- Ovládací řádek (nápověda je teď společná pro oba režimy) -->
         <div class="header-row" style="justify-content: center; gap: 10px;">
             <button class="btn-action btn-hint" onclick="showHint()">💡 Nápověda</button>
             <button class="btn-action" id="skip-btn" onclick="skipQuestion()">Další ➡️</button>
@@ -432,7 +471,7 @@
 
             menuScreen.style.display = 'none';
             headerElem.style.display = 'flex';
-            skipBtn.style.display = 'inline-block'; // V pohodovém režimu je tlačítko "Další" vidět
+            skipBtn.style.display = 'inline-block';
             
             score = 0;
             scoreElem.innerText = score;
@@ -448,7 +487,7 @@
             
             menuScreen.style.display = 'none';
             headerElem.style.display = 'flex';
-            skipBtn.style.display = 'none'; // V soutěžním režimu schováme "Další", aby se neproklikávalo
+            skipBtn.style.display = 'none';
             
             score = 0;
             timeLeft = 60;
@@ -540,17 +579,17 @@
                 .then(data => {
                     const lbDiv = document.getElementById('leaderboard-preview');
                     if (!data || data.length === 0) {
-                        lbDiv.innerHTML = "<div style='text-align:center; opacity:0.7;'>Zatím žádné výsledky.</div>";
+                        lbDiv.innerHTML = "<div style='text-align:center; opacity:0.7; padding:10px;'>Zatím žádné výsledky.</div>";
                         return;
                     }
                     data.sort((a, b) => parseInt(b.score) - parseInt(a.score));
-                    let html = "<div style='font-weight:600; margin-bottom:4px; color:#fde047;'>Top výsledky:</div>";
+                    let html = "<div style='font-weight:600; margin-bottom:6px; color:#fde047; font-size:0.85rem;'>🏆 Nejlepší výsledky třídy:</div>";
                     for (let i = 0; i < Math.min(3, data.length); i++) {
                         html += `<div class="lb-item"><span>${i+1}. ${data[i].name}</span> <b>${data[i].score} b</b></div>`;
                     }
                     lbDiv.innerHTML = html;
                 }).catch(() => {
-                    document.getElementById('leaderboard-preview').innerHTML = "<div style='text-align:center; opacity:0.7;'>Žebříček se nepodařilo načíst.</div>";
+                    document.getElementById('leaderboard-preview').innerHTML = "<div style='text-align:center; opacity:0.7; padding:10px;'>Žebříček se nepodařilo načíst.</div>";
                 });
         }
 
