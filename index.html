@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Definice barevných schémat (Tmavý / Světlý režim) */
         :root[data-theme="dark"] {
             --bg-body: #111827;
             --bg-header: linear-gradient(135deg, #1e3a8a, #3b82f6);
@@ -15,9 +14,6 @@
             --card-bg: rgba(255, 255, 255, 0.1);
             --border-color: rgba(255, 255, 255, 0.2);
             --btn-bg: rgba(255, 255, 255, 0.15);
-            --btn-hover: #ffffff;
-            --btn-hover-text: #1e3a8a;
-            --map-filter: none;
         }
         :root[data-theme="light"] {
             --bg-body: #f3f4f6;
@@ -26,9 +22,6 @@
             --card-bg: rgba(255, 255, 255, 0.85);
             --border-color: rgba(0, 0, 0, 0.15);
             --btn-bg: rgba(0, 0, 0, 0.05);
-            --btn-hover: #2563eb;
-            --btn-hover-text: #ffffff;
-            --map-filter: none;
         }
 
         body {
@@ -38,7 +31,6 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Úvodní menu */
         #menu-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, #1e3a8a, #7c3aed);
@@ -69,7 +61,29 @@
         .btn-menu.game { background: #2563eb; border-color: #3b82f6; width: 100%; margin-top: 5px; }
         .btn-menu.game:hover { background: #1d4ed8; color: white; }
 
-        /* Herní hlavička */
+        /* Modální okno pro výběr jména po konci hry */
+        #name-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); z-index: 3000; display: none;
+            align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;
+        }
+        .modal-content {
+            background: #1e293b; color: white; padding: 25px; border-radius: 16px;
+            width: 100%; max-width: 350px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .modal-content h3 { margin-top: 0; color: #fde047; }
+        .modal-content select {
+            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #475569;
+            background: #0f172a; color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95rem; margin: 15px 0; outline: none;
+        }
+        .modal-content button {
+            background: #2563eb; color: white; border: none; padding: 10px 20px;
+            border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%;
+            font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.2s;
+        }
+        .modal-content button:hover { background: #1d4ed8; }
+
         #header {
             background: var(--bg-header); color: white;
             padding: 10px 12px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -135,6 +149,52 @@
         </div>
     </div>
 
+    <!-- MODÁLNÍ OKNO PRO VÝBĚR JMÉNA ZE SEZNAMU -->
+    <div id="name-modal">
+        <div class="modal-content">
+            <h3>Konec hry! 🎯</h3>
+            <p>Získa(a) jsi skóre: <span id="final-score-val" style="color: #fde047; font-weight: 700;">0</span> bodů</p>
+            <p style="font-size: 0.85rem; opacity: 0.9;">Vyber své jméno ze seznamu třídy:</p>
+            
+            <select id="student-name-select">
+                <option value="">-- Vyber své jméno --</option>
+                <option value="Adamiková Emma">Adamiková Emma</option>
+                <option value="Banáková Miroslava">Banáková Miroslava</option>
+                <option value="Barabášová Karolína">Barabášová Karolína</option>
+                <option value="Dvořáková Rosalie">Dvořáková Rosalie</option>
+                <option value="Filip Jakub">Filip Jakub</option>
+                <option value="Gališ Michal">Gališ Michal</option>
+                <option value="Janatková Julie">Janatková Julie</option>
+                <option value="Kaňáková Natálie">Kaňáková Natálie</option>
+                <option value="Kománková Viktorie">Kománková Viktorie</option>
+                <option value="Kotlárová Ingrid">Kotlárová Ingrid</option>
+                <option value="Kršňák Damian">Kršňák Damian</option>
+                <option value="Kubaláková Viktorie">Kubaláková Viktorie</option>
+                <option value="Kubíček Nikolas">Kubíček Nikolas</option>
+                <option value="Lukšíková Jana">Lukšíková Jana</option>
+                <option value="Neděla Josef">Neděla Josef</option>
+                <option value="Ondruchová Jana">Ondruchová Jana</option>
+                <option value="Radová Nikola">Radová Nikola</option>
+                <option value="Roháčová Karolína">Roháčová Karolína</option>
+                <option value="Sabelová Barbora">Sabelová Barbora</option>
+                <option value="Silberová Kristýna">Silberová Kristýna</option>
+                <option value="Sklenovská Veronika">Sklenovská Veronika</option>
+                <option value="Sonnková Justýna Natálie">Sonnková Justýna Natálie</option>
+                <option value="Stružová Gabriela">Stružová Gabriela</option>
+                <option value="Šeděnková Nela">Šeděnková Nela</option>
+                <option value="Šilarová Stefanie">Šilarová Stefanie</option>
+                <option value="Šimková Amélie">Šimková Amélie</option>
+                <option value="Šnapková Lucie">Šnapková Lucie</option>
+                <option value="Talavašek Tomáš">Talavašek Tomáš</option>
+                <option value="Tvrdá Martina">Tvrdá Martina</option>
+                <option value="Vašica Marek">Vašica Marek</option>
+                <option value="Vlach Johannes">Vlach Johannes</option>
+            </select>
+
+            <button onclick="submitScore()">Uložit do žebříčku 🚀</button>
+        </div>
+    </div>
+
     <!-- HERNÍ HLAVIČKA -->
     <div id="header" style="display: none;">
         <div class="header-row">
@@ -195,7 +255,7 @@
         let timeLeft = 60, timerInterval = null, gameRunning = false;
 
         const map = L.map('map').setView([20, 0], 2);
-        const tileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18, attribution: 'Tiles &copy; Esri' }).addTo(map);
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18, attribution: 'Tiles &copy; Esri' }).addTo(map);
 
         const menuScreen = document.getElementById('menu-screen');
         const headerElem = document.getElementById('header');
@@ -203,6 +263,7 @@
         const scoreElem = document.getElementById('score');
         const scoreDisplay = document.getElementById('score-display');
         const relaxControls = document.getElementById('relax-controls');
+        const nameModal = document.getElementById('name-modal');
 
         loadLeaderboardPreview();
 
@@ -267,6 +328,7 @@
         function returnToMenu() {
             if (timerInterval) clearInterval(timerInterval);
             gameRunning = false;
+            nameModal.style.display = 'none';
             menuScreen.style.display = 'flex';
             headerElem.style.display = 'none';
             loadLeaderboardPreview();
@@ -302,23 +364,32 @@
         function endCompetitionGame() {
             clearInterval(timerInterval);
             gameRunning = false;
-            alert(`Konec času! Tvoje skóre je: ${score}`);
+            
+            // Zobrazíme modální okno s výběrem jména
+            document.getElementById('final-score-val').innerText = score;
+            document.getElementById('student-name-select').value = "";
+            nameModal.style.display = 'flex';
+        }
 
-            let playerName = prompt("Zadej své jméno do žebříčku třídy:");
-            if (playerName) {
-                fetch(SHEETDB_API, {
-                    method: 'POST',
-                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ data: [{ name: playerName, score: score }] })
-                }).then(() => {
-                    returnToMenu();
-                }).catch(() => {
-                    alert("Chyba při ukládání skóre do tabulky.");
-                    returnToMenu();
-                });
-            } else {
-                returnToMenu();
+        function submitScore() {
+            const selectElem = document.getElementById('student-name-select');
+            const playerName = selectElem.value;
+
+            if (!playerName) {
+                alert("Prosím, vyber ze seznamu své jméno!");
+                return;
             }
+
+            fetch(SHEETDB_API, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data: [{ name: playerName, score: score }] })
+            }).then(() => {
+                returnToMenu();
+            }).catch(() => {
+                alert("Chyba při ukládání skóre do tabulky.");
+                returnToMenu();
+            });
         }
 
         function loadLeaderboardPreview() {
@@ -342,7 +413,7 @@
         }
 
         map.on('click', function(e) {
-            if (menuScreen.style.display !== 'none' || !current) return;
+            if (menuScreen.style.display !== 'none' || nameModal.style.display === 'flex' || !current) return;
             
             if (Math.abs(e.latlng.lat - current.lat) <= current.radius && Math.abs(e.latlng.lng - current.lng) <= current.radius) {
                 score++;
