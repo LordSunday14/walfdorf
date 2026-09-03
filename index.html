@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zeměpisný kvíz - S nápovědou a češtinou</title>
+    <title>Zeměpisný kvíz - Nápovědy se státy</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -202,69 +202,69 @@
     <script>
         const allPlaces = [
             // --- Oceány a moře ---
-            { name: "Sev. led. oceán", type: "Oceán", lat: 80.0, lng: 0.0, radius: 18, hint: "Nejmenší ze světových oceánů, nachází se kolem severního pólu." },
-            { name: "Tichý oceán", type: "Oceán", lat: 0.0, lng: -160.0, radius: 25, hint: "Největší a nejhlubší oceán na Zemi." },
-            { name: "Atlantský oceán", type: "Oceán", lat: 0.0, lng: -30.0, radius: 22, hint: "Druhý největší oceán, odděluje Ameriku od Evropy a Afriky." },
-            { name: "Indický oceán", type: "Oceán", lat: -20.0, lng: 80.0, radius: 22, hint: "Třetí největší oceán, leží jižně od Asie." },
-            { name: "Jižní led. oceán", type: "Oceán", lat: -65.0, lng: 0.0, radius: 18, hint: "Obklopuje Antarktidu." },
-            { name: "Jaderské moře", type: "Moře", lat: 43.0, lng: 15.0, radius: 8, hint: "Oblíbené moře Čechů pro dovolenou, severní část Středozemního moře." },
-            { name: "Černé moře", type: "Moře", lat: 43.4, lng: 34.0, radius: 9, hint: "Leží mezi východní Evropou a západní Asií, vlévá se do něj Dunaj." },
-            { name: "Středozemní moře", type: "Moře", lat: 35.0, lng: 18.0, radius: 12, hint: "Obklopené Evropou, Afrikou a Asií, spojuje ho s Atlantikem Gibraltar." },
-            { name: "Baltické moře", type: "Moře", lat: 57.0, lng: 20.0, radius: 9, hint: "Vnitrozemské moře v severní Evropě (Moravskoslezský kraj ho nemá, ale Česko do jeho úmoří patří)." },
-            { name: "Severní moře", type: "Moře", lat: 56.0, lng: 3.0, radius: 9, hint: "Leží mezi Velkou Británií a Skandinávií, známé těžbou ropy." },
-            { name: "Rudé moře", type: "Moře", lat: 22.0, lng: 38.0, radius: 9, hint: "Mezi Afrikou a Arabským poloostrovem, velmi slané a teplé." },
+            { name: "Sev. led. oceán", type: "Oceán", lat: 80.0, lng: 0.0, radius: 18, hint: "Nachází se kolem severního pólu." },
+            { name: "Tichý oceán", type: "Oceán", lat: 0.0, lng: -160.0, radius: 25, hint: "Rozprostírá se mezi Amerikou, Asií a Austrálií." },
+            { name: "Atlantský oceán", type: "Oceán", lat: 0.0, lng: -30.0, radius: 22, hint: "Leží mezi Evropou/Afrikou a Amerikou." },
+            { name: "Indický oceán", type: "Oceán", lat: -20.0, lng: 80.0, radius: 22, hint: "Nachází se jižně od Indie a Asie, mezi Afrikou a Austrálií." },
+            { name: "Jižní led. oceán", type: "Oceán", lat: -65.0, lng: 0.0, radius: 18, hint: "Obklopuje jižní pól a Antarktidu." },
+            { name: "Jaderské moře", type: "Moře", lat: 43.0, lng: 15.0, radius: 8, hint: "Oblíbené u Chorvatska a Itálie." },
+            { name: "Černé moře", type: "Moře", lat: 43.4, lng: 34.0, radius: 9, hint: "Mezi Ukrajinou, Ruskem, Tureckem a Rumunskem." },
+            { name: "Středozemní moře", type: "Moře", lat: 35.0, lng: 18.0, radius: 12, hint: "Mezi jižní Evropou (Itálie, Řecko) a severní Afrikou." },
+            { name: "Baltické moře", type: "Moře", lat: 57.0, lng: 20.0, radius: 9, hint: "Obklopené Švédskem, Finskem, Polskem a pobaltskými státy." },
+            { name: "Severní moře", type: "Moře", lat: 56.0, lng: 3.0, radius: 9, hint: "Mezi Velkou Británií, Norskem, Dánskem a Německem." },
+            { name: "Rudé moře", type: "Moře", lat: 22.0, lng: 38.0, radius: 9, hint: "Mezi Egyptem, Súdánem a Saúdskou Arábií." },
 
             // --- Poloostrovy ---
-            { name: "Skandinávský poloostrov", type: "Poloostrov", lat: 63.0, lng: 14.0, radius: 10, hint: "Nachází se na něm Norsko a Švédsko." },
-            { name: "Pyrenejský poloostrov", type: "Poloostrov", lat: 40.0, lng: -4.0, radius: 9, hint: "Leží na něm Španělsko a Portugalsko." },
-            { name: "Apeninský poloostrov", type: "Poloostrov", lat: 42.0, lng: 12.5, radius: 8, hint: "Má tvar italské boty." },
-            { name: "Balkánský poloostrov", type: "Poloostrov", lat: 42.0, lng: 22.0, radius: 9, hint: "Jihovýchodní Evropa, státy jako Řecko, Bulharsko, Chorvatsko." },
-            { name: "Arabský poloostrov", type: "Poloostrov", lat: 24.0, lng: 45.0, radius: 10, hint: "Největší poloostrov světa, známý pouštěmi a ropou." },
-            { name: "Přední Indie", type: "Poloostrov", lat: 20.0, lng: 78.0, radius: 10, hint: "Velký poloostrov v jižní Asii, kde leží stát Indie." },
-            { name: "Korejský poloostrov", type: "Poloostrov", lat: 36.0, lng: 128.0, radius: 8, hint: "Rozdělený na Severní a Jižní Koreu." },
-            { name: "Aljaška", type: "Poloostrov", lat: 64.0, lng: -152.0, radius: 10, hint: "Největší stát USA, na severozápadě Ameriky." },
-            { name: "Florida", type: "Poloostrov", lat: 28.0, lng: -81.5, radius: 8, hint: "Slunný poloostrov USA s městem Miami a krokodýly." },
+            { name: "Skandinávský poloostrov", type: "Poloostrov", lat: 63.0, lng: 14.0, radius: 10, hint: "Nachází se v severní Evropě (státy Norsko a Švédsko)." },
+            { name: "Pyrenejský poloostrov", type: "Poloostrov", lat: 40.0, lng: -4.0, radius: 9, hint: "Jihozápadní Evropa (státy Španělsko a Portugalsko)." },
+            { name: "Apeninský poloostrov", type: "Poloostrov", lat: 42.0, lng: 12.5, radius: 8, hint: "Jižní Evropa (stát Itálie)." },
+            { name: "Balkánský poloostrov", type: "Poloostrov", lat: 42.0, lng: 22.0, radius: 9, hint: "Jihovýchodní Evropa (Řecko, Bulharsko, Chorvatsko atd.)." },
+            { name: "Arabský poloostrov", type: "Poloostrov", lat: 24.0, lng: 45.0, radius: 10, hint: "Jihozápadní Asie (státy Saúdská Arábie, Jemen, Omán)." },
+            { name: "Přední Indie", type: "Poloostrov", lat: 20.0, lng: 78.0, radius: 10, hint: "Jižní Asie (tvoří velkou část státu Indie)." },
+            { name: "Korejský poloostrov", type: "Poloostrov", lat: 36.0, lng: 128.0, radius: 8, hint: "Východní Asie (státy Severní a Jižní Korea)." },
+            { name: "Aljaška", type: "Poloostrov", lat: 64.0, lng: -152.0, radius: 10, hint: "Severozápad Severní Ameriky (patří USA)." },
+            { name: "Florida", type: "Poloostrov", lat: 28.0, lng: -81.5, radius: 8, hint: "Jihovýchod USA." },
 
             // --- Ostrovy ---
-            { name: "Britské ostrovy", type: "Ostrov", lat: 54.0, lng: -3.0, radius: 9, hint: "Zahrnují Anglii, Skotsko, Wales a Irsko." },
-            { name: "Island", type: "Ostrov", lat: 64.9, lng: -19.0, radius: 8, hint: "Ostrov ohně a ledu, gejzírů a sopek v severním Atlantiku." },
-            { name: "Madagaskar", type: "Ostrov", lat: -20.0, lng: 47.0, radius: 9, hint: "Velký ostrov u východního pobřeží Afriky, domov lemurů." },
-            { name: "Kuba", type: "Ostrov", lat: 21.5, lng: -78.0, radius: 8, hint: "Největší ostrov v Karibském moři." },
-            { name: "Grónsko (Kanadské ostrovy)", type: "Ostrov", lat: 75.0, lng: -100.0, radius: 12, hint: "Největší ostrov světa (patří Dánsku, leží u Ameriky)." },
-            { name: "Japonsko (Hokkaidó)", type: "Ostrov", lat: 43.3, lng: 142.8, radius: 8, hint: "Severní ostrov japonského souostroví." },
-            { name: "Nový Zéland", type: "Ostrov", lat: -41.0, lng: 174.0, radius: 9, hint: "Ostrovní stát v Tichém oceánu jižně od Austrálie." },
+            { name: "Britské ostrovy", type: "Ostrov", lat: 54.0, lng: -3.0, radius: 9, hint: "Západní Evropa (státy Spojené království a Irsko)." },
+            { name: "Island", type: "Ostrov", lat: 64.9, lng: -19.0, radius: 8, hint: "Severní Atlantik (ostrovní stát Island)." },
+            { name: "Madagaskar", type: "Ostrov", lat: -20.0, lng: 47.0, radius: 9, hint: "Indický oceán u východního pobřeží Afriky (stát Madagaskar)." },
+            { name: "Kuba", type: "Ostrov", lat: 21.5, lng: -78.0, radius: 8, hint: "Karibik, Střední Amerika (stát Kuba)." },
+            { name: "Grónsko (Kanadské ostrovy)", type: "Ostrov", lat: 75.0, lng: -100.0, radius: 12, hint: "Severní Amerika (patří Dánsku)." },
+            { name: "Japonsko (Hokkaidó)", type: "Ostrov", lat: 43.3, lng: 142.8, radius: 8, hint: "Východní Asie (stát Japonsko)." },
+            { name: "Nový Zéland", type: "Ostrov", lat: -41.0, lng: 174.0, radius: 9, hint: "Oceánie / jižní Pacifik (stát Nový Zéland)." },
 
             // --- Zálivy a průlivy ---
-            { name: "Mexický záliv", type: "Záliv", lat: 25.0, lng: -90.0, radius: 9, hint: "Záliv v Severní Americe, ohraničený USA, Mexikem a Kubou." },
-            { name: "Bengálský záliv", type: "Záliv", lat: 15.0, lng: 88.0, radius: 9, hint: "Největší záliv na světě, v Indickém oceánu u Indie." },
-            { name: "Gibraltarský průliv", type: "Průliv", lat: 35.9, lng: -5.3, radius: 8, hint: "Úzký průliv spojující Středozemní moře a Atlantik." },
-            { name: "Panamský průplav", type: "Průplav", lat: 9.1, lng: -79.6, radius: 8, hint: "Umožňuje lodím proplout z Atlantiku do Tichého oceánu v Americe." },
-            { name: "Suezský průplav", type: "Průplav", lat: 30.5, lng: 32.3, radius: 8, hint: "Umělý průplav v Egyptě spojující Středozemní a Rudé moře." },
+            { name: "Mexický záliv", type: "Záliv", lat: 25.0, lng: -90.0, radius: 9, hint: "Mezi USA, Mexikem a Kubou." },
+            { name: "Bengálský záliv", type: "Záliv", lat: 15.0, lng: 88.0, radius: 9, hint: "Indický oceán, východně od Indie." },
+            { name: "Gibraltarský průliv", type: "Průliv", lat: 35.9, lng: -5.3, radius: 8, hint: "Mezi Španělskem (Evropa) a Marokem (Afrika)." },
+            { name: "Panamský průplav", type: "Průplav", lat: 9.1, lng: -79.6, radius: 8, hint: "Střední Amerika (stát Panama)." },
+            { name: "Suezský průplav", type: "Průplav", lat: 30.5, lng: 32.3, radius: 8, hint: "Severovýchod Afriky (stát Egypt)." },
 
             // --- Pohoří a hory ---
-            { name: "Himaláje (Mt. Everest)", type: "Pohoří", lat: 27.9, lng: 86.9, radius: 8, hint: "Nejvyšší pohoří světa s nejvyšší horou planety." },
-            { name: "Kavkaz (Elbrus)", type: "Pohoří", lat: 43.3, lng: 42.4, radius: 8, hint: "Pohoří mezi Černým a Kaspickým mořem." },
-            { name: "Ural", type: "Pohoří", lat: 60.0, lng: 60.0, radius: 10, hint: "Tradiční hranice mezi Evropou a Asií v Rusku." },
-            { name: "Alpy (Mt. Blanc)", type: "Pohoří", lat: 45.8, lng: 6.8, radius: 8, hint: "Slavné evropské velespohoří zasahující do Francie, Itálie, Švýcarska..." },
-            { name: "Andy (Aconcagua)", type: "Pohoří", lat: -32.6, lng: -70.0, radius: 10, hint: "Nejdelší kontinentální pohoří na západě Jižní Ameriky." },
-            { name: "Skalnaté hory", type: "Pohoří", lat: 45.0, lng: -110.0, radius: 10, hint: "Významné pohoří v západní části Severní Ameriky." },
-            { name: "Atlas", type: "Pohoří", lat: 31.5, lng: -6.0, radius: 9, hint: "Pohoří v severozápadní Africe." },
+            { name: "Himaláje (Mt. Everest)", type: "Pohoří", lat: 27.9, lng: 86.9, radius: 8, hint: "Asie (na hranici Nepálu a Číny/Tibetu)." },
+            { name: "Kavkaz (Elbrus)", type: "Pohoří", lat: 43.3, lng: 42.4, radius: 8, hint: "Mezi Černým a Kaspickým mořem (Rusko, Gruzie, Ázerbájdžán)." },
+            { name: "Ural", type: "Pohoří", lat: 60.0, lng: 60.0, radius: 10, hint: "Ruské pohoří tvořící hranici mezi Evropou a Asií." },
+            { name: "Alpy (Mt. Blanc)", type: "Pohoří", lat: 45.8, lng: 6.8, radius: 8, hint: "Střední Evropa (Francie, Itálie, Švýcarsko, Rakousko)." },
+            { name: "Andy (Aconcagua)", type: "Pohoří", lat: -32.6, lng: -70.0, radius: 10, hint: "Západní pobřeží Jižní Ameriky (Chile, Argentina)." },
+            { name: "Skalnaté hory", type: "Pohoří", lat: 45.0, lng: -110.0, radius: 10, hint: "Západ Severní Ameriky (USA a Kanada)." },
+            { name: "Atlas", type: "Pohoří", lat: 31.5, lng: -6.0, radius: 9, hint: "Severozápad Afriky (Maroko, Alžírsko, Tunisko)." },
 
             // --- Řeky ---
-            { name: "Volha", type: "Řeka", lat: 46.5, lng: 48.5, radius: 9, hint: "Nejdelší evropská řeka, protéká Ruskem do Kaspického moře." },
-            { name: "Dunaj", type: "Řeka", lat: 45.2, lng: 29.6, radius: 9, hint: "Druhá nejdelší evropská řeka, protéká Vídní, Budapeští i Bělehradem." },
-            { name: "Labe", type: "Řeka", lat: 53.8, lng: 8.7, radius: 8, hint: "Naše hlavní řeka, pramení v Krkonoších a vlévá se do Severního moře." },
-            { name: "Nil", type: "Řeka", lat: 30.1, lng: 31.1, radius: 10, hint: "Tradičně považovaná za nejdelší řeku světa, protéká Egyptem." },
-            { name: "Amazonka", type: "Řeka", lat: -0.1, lng: -50.0, radius: 10, hint: "Vodnatějších řeku na světě nenajdeš, protéká Jižní Amerikou." },
-            { name: "Mississippi", type: "Řeka", lat: 29.1, lng: -89.2, radius: 9, hint: "Hlavní říční systém v USA." },
-            { name: "Kongo", type: "Řeka", lat: -6.0, lng: 12.4, radius: 9, hint: "Nejvodnatější řeka Afriky." },
+            { name: "Volha", type: "Řeka", lat: 46.5, lng: 48.5, radius: 9, hint: "Východní Evropa / Rusko." },
+            { name: "Dunaj", type: "Řeka", lat: 45.2, lng: 29.6, radius: 9, hint: "Střední a jihovýchodní Evropa (protéká např. Rakouskem, Slovenskem, Maďarskem)." },
+            { name: "Labe", type: "Řeka", lat: 53.8, lng: 8.7, radius: 8, hint: "Střední Evropa (Česko a Německo)." },
+            { name: "Nil", type: "Řeka", lat: 30.1, lng: 31.1, radius: 10, hint: "Severovýchodní Afrika (protéká Egyptem a Súdánem)." },
+            { name: "Amazonka", type: "Řeka", lat: -0.1, lng: -50.0, radius: 10, hint: "Jižní Amerika (protéká hlavně Brazílií)." },
+            { name: "Mississippi", type: "Řeka", lat: 29.1, lng: -89.2, radius: 9, hint: "Severní Amerika (stát USA)." },
+            { name: "Kongo", type: "Řeka", lat: -6.0, lng: 12.4, radius: 9, hint: "Střední Afrika (Demokratická republika Kongo)." },
 
             // --- Jezera ---
-            { name: "Kaspické moře (Jezero)", type: "Jezero", lat: 42.0, lng: 50.0, radius: 10, hint: "Největší vnitrozemské jezero (nebo vnitrozemské moře) na světě." },
-            { name: "Bajkal", type: "Jezero", lat: 53.5, lng: 108.1, radius: 8, hint: "Nejhlubší jezero světa, leží na Sibiři." },
-            { name: "Viktoriino jezero", type: "Jezero", lat: -1.0, lng: 33.0, radius: 8, hint: "Největší jezero v Africe, pramen Bílého Nilu." },
-            { name: "Titicaca", type: "Jezero", lat: -15.8, lng: -69.3, radius: 8, hint: "Nejvýše položené velkoploché jezero světa v Andách." },
-            { name: "Hořejší jezero", type: "Jezero", lat: 47.7, lng: -87.5, radius: 8, hint: "Největší z amerických Velkých jezer." }
+            { name: "Kaspické moře (Jezero)", type: "Jezero", lat: 42.0, lng: 50.0, radius: 10, hint: "Mezi východní Evropou a Asií (Rusko, Kazachstán, Írán...)." },
+            { name: "Bajkal", type: "Jezero", lat: 53.5, lng: 108.1, radius: 8, hint: "Asie / Sibiř (Rusko)." },
+            { name: "Viktoriino jezero", type: "Jezero", lat: -1.0, lng: 33.0, radius: 8, hint: "Východní Afrika (na hranicích Keni, Ugandy a Tanzanie)." },
+            { name: "Titicaca", type: "Jezero", lat: -15.8, lng: -69.3, radius: 8, hint: "Jižní Amerika (na hranicích Peru a Bolívie)." },
+            { name: "Hořejší jezero", type: "Jezero", lat: 47.7, lng: -87.5, radius: 8, hint: "Severní Amerika (na hranicích USA a Kanady)." }
         ];
 
         let activePlaces = [];
@@ -273,7 +273,6 @@
 
         const map = L.map('map').setView([20, 0], 2);
 
-        // MAPA V ČEŠTINĚ: Používáme dlaždice s českými popiskami (ArcGIS World Street Map nebo CartoDB s podporou jazyků)
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
             maxZoom: 18,
             attribution: 'Tiles &copy; Esri'
@@ -361,5 +360,3 @@
 
 </body>
 </html>
-
-
