@@ -1,334 +1,217 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="cs" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zeměpisný kvíz</title>
-    <!-- Načtení stylů pro Leaflet mapu -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Google Fonts pro moderní a čistý font -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            background-color: #f3f4f6;
-            overflow: hidden;
+        /* Definice barevných schémat (Tmavý / Světlý režim) */
+        :root[data-theme="dark"] {
+            --bg-body: #111827;
+            --bg-header: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            --text-color: #f9fafb;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --border-color: rgba(255, 255, 255, 0.2);
+            --btn-bg: rgba(255, 255, 255, 0.15);
+            --btn-hover: #ffffff;
+            --btn-hover-text: #1e3a8a;
+            --map-filter: none;
         }
-        /* Úvodní menu obrazovka */
-        #menu-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            padding: 20px;
-            box-sizing: border-box;
-            text-align: center;
-            overflow-y: auto;
-        }
-        #menu-screen h1 {
-            margin-bottom: 10px;
-            font-size: 1.8rem;
-        }
-        #menu-screen p {
-            margin-bottom: 20px;
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-        .category-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 12px;
-            width: 100%;
-            max-width: 500px;
-        }
-        .btn-category {
-            background: rgba(255, 255, 255, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 12px 15px;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            backdrop-filter: blur(5px);
-            transition: all 0.2s ease;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-        .btn-category:hover {
-            background: white;
-            color: #1e3a8a;
-            transform: translateY(-2px);
-        }
-        .btn-category.all {
-            grid-column: 1 / -1;
-            background: #fde047;
-            color: #1e3a8a;
-            border-color: #facc15;
-        }
-        .btn-category.all:hover {
-            background: #facc15;
+        :root[data-theme="light"] {
+            --bg-body: #f3f4f6;
+            --bg-header: linear-gradient(135deg, #2563eb, #60a5fa);
+            --text-color: #1f2937;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --border-color: rgba(0, 0, 0, 0.15);
+            --btn-bg: rgba(0, 0, 0, 0.05);
+            --btn-hover: #2563eb;
+            --btn-hover-text: #ffffff;
+            --map-filter: none;
         }
 
-        /* Herní hlavička - optimalizovaná pro mobily */
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0; padding: 0; display: flex; flex-direction: column;
+            height: 100vh; background-color: var(--bg-body); color: var(--text-color); overflow: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Úvodní menu */
+        #menu-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1e3a8a, #7c3aed);
+            z-index: 2000; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; color: white;
+            padding: 20px; box-sizing: border-box; text-align: center; overflow-y: auto;
+        }
+        #menu-screen h1 { margin-bottom: 5px; font-size: 1.8rem; }
+        #menu-screen p { margin-bottom: 20px; font-size: 0.95rem; opacity: 0.9; }
+        .menu-section {
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 20px; border-radius: 16px; width: 100%; max-width: 400px;
+            margin-bottom: 15px; backdrop-filter: blur(5px); box-sizing: border-box;
+        }
+        .menu-section h2 { font-size: 1.1rem; margin-top: 0; color: #fde047; }
+        .category-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;
+        }
+        .btn-menu {
+            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white; padding: 10px; border-radius: 10px; font-size: 0.85rem;
+            font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .btn-menu:hover { background: white; color: #1e3a8a; transform: translateY(-2px); }
+        .btn-menu.full { grid-column: 1 / -1; background: #fde047; color: #1e3a8a; border-color: #facc15; }
+        .btn-menu.full:hover { background: #facc15; }
+        .btn-menu.game { background: #2563eb; border-color: #3b82f6; width: 100%; margin-top: 5px; }
+        .btn-menu.game:hover { background: #1d4ed8; color: white; }
+
+        /* Herní hlavička */
         #header {
-            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-            color: white;
-            padding: 10px 12px;
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
-            z-index: 1000;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
+            background: var(--bg-header); color: white;
+            padding: 10px 12px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
         }
-        .header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            gap: 6px;
-        }
-        .header-left, .header-right {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
+        .header-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 6px; }
+        .header-left, .header-right { display: flex; align-items: center; gap: 5px; }
         .btn-action {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            padding: 6px 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.78rem;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            transition: background 0.2s;
-            white-space: nowrap;
+            background: rgba(255, 255, 255, 0.2); border: none; color: white;
+            padding: 6px 10px; border-radius: 8px; cursor: pointer; font-weight: 600;
+            font-size: 0.78rem; font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.2s; white-space: nowrap;
         }
-        .btn-action:hover {
-            background: rgba(255, 255, 255, 0.35);
+        .btn-action:hover { background: rgba(255, 255, 255, 0.35); }
+        .btn-hint { background: #f59e0b; }
+        .btn-hint:hover { background: #d97706; }
+        .header-center { display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .header-center h3 { margin: 0; font-weight: 600; font-size: 0.75rem; opacity: 0.9; }
+        #target-card { background: rgba(255, 255, 255, 0.15); padding: 3px 12px; border-radius: 50px; backdrop-filter: blur(8px); margin-top: 2px; }
+        #target-name { color: #fde047; font-weight: 700; font-size: 0.95rem; }
+        .scoreboard { font-size: 0.8rem; font-weight: 500; background: rgba(0, 0, 0, 0.15); padding: 5px 10px; border-radius: 15px; white-space: nowrap; }
+        
+        #map { flex-grow: 1; width: 100%; }
+
+        #leaderboard-preview {
+            font-size: 0.85rem; max-height: 120px; overflow-y: auto; text-align: left; margin-top: 8px;
         }
-        .btn-hint {
-            background: #f59e0b;
-        }
-        .btn-hint:hover {
-            background: #d97706;
-        }
-        .header-center {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-        h2 {
-            margin: 0;
-            font-weight: 600;
-            font-size: 0.8rem;
-            opacity: 0.9;
-        }
-        #target-card {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 3px 12px;
-            border-radius: 50px;
-            backdrop-filter: blur(8px);
-            margin-top: 2px;
-        }
-        #target-name {
-            color: #fde047;
-            font-weight: 700;
-            font-size: 0.95rem;
-        }
-        #scoreboard {
-            font-size: 0.8rem;
-            font-weight: 500;
-            background: rgba(0, 0, 0, 0.15);
-            padding: 5px 10px;
-            border-radius: 15px;
-            white-space: nowrap;
-        }
-        #map {
-            flex-grow: 1;
-            width: 100%;
-        }
-        .leaflet-popup-content-wrapper {
-            border-radius: 12px;
-            padding: 4px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-        }
+        .lb-item { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
 
-    <!-- Úvodní menu -->
+    <!-- ÚVODNÍ MENU -->
     <div id="menu-screen">
-        <h1>Zeměpisný kvíz</h1>
-        <p>Vyber si kategorii, kterou chceš procvičovat:</p>
-        <div class="category-grid">
-            <button class="btn-category" onclick="startGame('Oceán')">Oceány a moře</button>
-            <button class="btn-category" onclick="startGame('Poloostrov')">Poloostrovy</button>
-            <button class="btn-category" onclick="startGame('Ostrov')">Ostrovy</button>
-            <button class="btn-category" onclick="startGame('Záliv')">Zálivy a průlivy</button>
-            <button class="btn-category" onclick="startGame('Pohoří')">Pohoří a hory</button>
-            <button class="btn-category" onclick="startGame('Řeka')">Řeky</button>
-            <button class="btn-category" onclick="startGame('Jezero')">Jezera</button>
-            <button class="btn-category all" onclick="startGame('Vše')">🌟 Hrát všechno dohromady</button>
+        <div style="position: absolute; top: 15px; right: 15px;">
+            <button class="btn-menu" onclick="toggleTheme()" style="padding: 6px 12px; font-size: 0.8rem;">🌓 Vzhled</button>
+        </div>
+        <h1>🌍 Zeměpisný kvíz</h1>
+        <p>Vyber si režim, jak chceš hrát:</p>
+
+        <div class="menu-section">
+            <h2>☕ Pohodový režim</h2>
+            <p style="font-size: 0.8rem; margin: 0 0 10px 0; opacity: 0.8;">Bez časového limitu, s nápovědou a výběrem kategorií.</p>
+            <div class="category-grid">
+                <button class="btn-menu" onclick="startRelaxGame('Oceán')">Oceány</button>
+                <button class="btn-menu" onclick="startRelaxGame('Poloostrov')">Poloostrovy</button>
+                <button class="btn-menu" onclick="startRelaxGame('Ostrov')">Ostrovy</button>
+                <button class="btn-menu" onclick="startRelaxGame('Záliv')">Zálivy</button>
+                <button class="btn-menu" onclick="startRelaxGame('Pohoří')">Pohoří</button>
+                <button class="btn-menu" onclick="startRelaxGame('Řeka')">Řeky</button>
+                <button class="btn-menu full" onclick="startRelaxGame('Vše')">🌟 Všechna místa</button>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <h2>🏆 Soutěžní Game Mode</h2>
+            <p style="font-size: 0.8rem; margin: 0 0 10px 0; opacity: 0.8;">60 sekund na čas + zápis do žebříčku celé třídy.</p>
+            <button class="btn-menu game" onclick="startCompetitionGame()">Spustit soutěž 🚀</button>
+            
+            <div id="leaderboard-preview">
+                <div style="text-align: center; opacity: 0.7;">Načítám žebříček...</div>
+            </div>
         </div>
     </div>
 
-    <!-- Herní rozhraní -->
+    <!-- HERNÍ HLAVIČKA -->
     <div id="header" style="display: none;">
         <div class="header-row">
             <div class="header-left">
                 <button class="btn-action" onclick="returnToMenu()">← Menu</button>
             </div>
             <div class="header-center">
-                <h2>Hledá se:</h2>
-                <div id="target-card">
-                    <span id="target-name">Načítám...</span>
-                </div>
+                <h3 id="mode-title-tag">Hledá se:</h3>
+                <div id="target-card"><span id="target-name">Načítám...</span></div>
             </div>
             <div class="header-right">
-                <div id="scoreboard">Skóre: <span id="score" style="font-weight: 700; color: #fde047;">0</span></div>
+                <div class="scoreboard" id="score-display">Skóre: <span id="score" style="font-weight: 700; color: #fde047;">0</span></div>
+                <button class="btn-action" onclick="toggleTheme()" title="Přepnout vzhled">🌓</button>
             </div>
         </div>
-        <div class="header-row" style="justify-content: center; gap: 10px;">
+        <div class="header-row" id="relax-controls" style="justify-content: center; gap: 10px; display: none;">
             <button class="btn-action btn-hint" onclick="showHint()">💡 Nápověda</button>
             <button class="btn-action" onclick="skipQuestion()">Další ➡️</button>
         </div>
     </div>
 
+    <!-- MAPA -->
     <div id="map"></div>
 
-    <!-- Načtení knihovny Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        const SHEETDB_API = 'https://sheetdb.io/api/v1/1v6yh6ohf7v5p';
+
         const allPlaces = [
-            // --- Oceány a moře ---
             { name: "Sev. led. oceán", type: "Oceán", lat: 80.0, lng: 0.0, radius: 18, hint: "Kolem severního pólu" },
             { name: "Tichý oceán", type: "Oceán", lat: 0.0, lng: -160.0, radius: 25, hint: "Mezi Amerikou, Asií a Austrálií" },
             { name: "Atlantský oceán", type: "Oceán", lat: 0.0, lng: -30.0, radius: 22, hint: "Mezi Evropou, Afrikou a Amerikou" },
             { name: "Indický oceán", type: "Oceán", lat: -20.0, lng: 80.0, radius: 22, hint: "Jižně od Asie, mezi Afrikou a Austrálií" },
-            { name: "Jižní led. oceán", type: "Oceán", lat: -65.0, lng: 0.0, radius: 18, hint: "Kolem Antarktidy" },
-            { name: "Jaderské moře", type: "Moře", lat: 43.0, lng: 15.0, radius: 8, hint: "Itálie, Chorvatsko, Slovinsko, Albánie" },
-            { name: "Černé moře", type: "Moře", lat: 43.4, lng: 34.0, radius: 9, hint: "Turecko, Ukrajina, Rusko, Rumunsko, Bulharsko, Gruzie" },
+            { name: "Jaderské moře", type: "Moře", lat: 43.0, lng: 15.0, radius: 8, hint: "Itálie, Chorvatsko, Slovinsko" },
+            { name: "Černé moře", type: "Moře", lat: 43.4, lng: 34.0, radius: 9, hint: "Turecko, Ukrajina, Rumunsko" },
             { name: "Středozemní moře", type: "Moře", lat: 35.0, lng: 18.0, radius: 12, hint: "Mezi jižní Evropou a severní Afrikou" },
-            { name: "Baltické moře", type: "Moře", lat: 57.0, lng: 20.0, radius: 9, hint: "Švédsko, Finsko, Polsko, pobaltské státy, Německo" },
-            { name: "Severní moře", type: "Moře", lat: 56.0, lng: 3.0, radius: 9, hint: "Velká Británie, Norsko, Dánsko, Německo, Nizozemsko" },
-            { name: "Rudé moře", type: "Moře", lat: 22.0, lng: 38.0, radius: 9, hint: "Egypt, Súdán, Saúdská Arábie, Jemen" },
-
-            // --- Poloostrovy ---
-            { name: "Skandinávský poloostrov", type: "Poloostrov", lat: 63.0, lng: 14.0, radius: 10, hint: "Norsko, Švédsko, sever Finska" },
+            { name: "Baltické moře", type: "Moře", lat: 57.0, lng: 20.0, radius: 9, hint: "Švédsko, Finsko, Polsko" },
+            { name: "Skandinávský poloostrov", type: "Poloostrov", lat: 63.0, lng: 14.0, radius: 10, hint: "Norsko, Švédsko" },
             { name: "Pyrenejský poloostrov", type: "Poloostrov", lat: 40.0, lng: -4.0, radius: 9, hint: "Španělsko, Portugalsko" },
             { name: "Apeninský poloostrov", type: "Poloostrov", lat: 42.0, lng: 12.5, radius: 8, hint: "Itálie" },
-            { name: "Balkánský poloostrov", type: "Poloostrov", lat: 42.0, lng: 22.0, radius: 9, hint: "Řecko, Chorvatsko, Bulharsko, Srbsko atd." },
-            { name: "Arabský poloostrov", type: "Poloostrov", lat: 24.0, lng: 45.0, radius: 10, hint: "Saúdská Arábie, Jemen, Omán, Spojené arabské emiráty" },
-            { name: "Přední Indie", type: "Poloostrov", lat: 20.0, lng: 78.0, radius: 10, hint: "Indie" },
-            { name: "Korejský poloostrov", type: "Poloostrov", lat: 36.0, lng: 128.0, radius: 8, hint: "Severní Korea, Jižní Korea" },
-            { name: "Aljaška", type: "Poloostrov", lat: 64.0, lng: -152.0, radius: 10, hint: "USA" },
-            { name: "Florida", type: "Poloostrov", lat: 28.0, lng: -81.5, radius: 8, hint: "USA" },
-
-            // --- Ostrovy ---
+            { name: "Balkánský poloostrov", type: "Poloostrov", lat: 42.0, lng: 22.0, radius: 9, hint: "Řecko, Chorvatsko, Bulharsko" },
+            { name: "Arabský poloostrov", type: "Poloostrov", lat: 24.0, lng: 45.0, radius: 10, hint: "Saúdská Arábie, Jemen" },
             { name: "Britské ostrovy", type: "Ostrov", lat: 54.0, lng: -3.0, radius: 9, hint: "Spojené království, Irsko" },
             { name: "Island", type: "Ostrov", lat: 64.9, lng: -19.0, radius: 8, hint: "Island" },
             { name: "Madagaskar", type: "Ostrov", lat: -20.0, lng: 47.0, radius: 9, hint: "Madagaskar" },
             { name: "Kuba", type: "Ostrov", lat: 21.5, lng: -78.0, radius: 8, hint: "Kuba" },
-            { name: "Grónsko (Kanadské ostrovy)", type: "Ostrov", lat: 75.0, lng: -100.0, radius: 12, hint: "Grónsko (Dánsko), Kanada" },
-            { name: "Japonsko (Hokkaidó)", type: "Ostrov", lat: 43.3, lng: 142.8, radius: 8, hint: "Japonsko" },
-            { name: "Nový Zéland", type: "Ostrov", lat: -41.0, lng: 174.0, radius: 9, hint: "Nový Zéland" },
-
-            // --- Zálivy a průlivy ---
             { name: "Mexický záliv", type: "Záliv", lat: 25.0, lng: -90.0, radius: 9, hint: "Pobřeží USA, Mexika a Kuby" },
-            { name: "Bengálský záliv", type: "Záliv", lat: 15.0, lng: 88.0, radius: 9, hint: "Východně od Indie, u Bangladéše a Myanmaru" },
-            { name: "Gibraltarský průliv", type: "Průliv", lat: 35.9, lng: -5.3, radius: 8, hint: "Mezi Španělskem a Marokem" },
-            { name: "Panamský průplav", type: "Průplav", lat: 9.1, lng: -79.6, radius: 8, hint: "Panama" },
-            { name: "Suezský průplav", type: "Průplav", lat: 30.5, lng: 32.3, radius: 8, hint: "Egypt" },
-
-            // --- Pohoří a hory ---
-            { name: "Himaláje (Mt. Everest)", type: "Pohoří", lat: 27.9, lng: 86.9, radius: 8, hint: "Nepál, Čína (Tibet), Indie, Pákistán" },
-            { name: "Kavkaz (Elbrus)", type: "Pohoří", lat: 43.3, lng: 42.4, radius: 8, hint: "Rusko, Gruzie, Ázerbájdžán, Arménie" },
-            { name: "Ural", type: "Pohoří", lat: 60.0, lng: 60.0, radius: 10, hint: "Rusko" },
-            { name: "Alpy (Mt. Blanc)", type: "Pohoří", lat: 45.8, lng: 6.8, radius: 8, hint: "Francie, Itálie, Švýcarsko, Rakousko, Německo" },
-            { name: "Andy (Aconcagua)", type: "Pohoří", lat: -32.6, lng: -70.0, radius: 10, hint: "Argentina, Chile, Peru, Bolívie, Ekvádor, Kolumbie" },
-            { name: "Skalnaté hory", type: "Pohoří", lat: 45.0, lng: -110.0, radius: 10, hint: "USA, Kanada" },
-            { name: "Atlas", type: "Pohoří", lat: 31.5, lng: -6.0, radius: 9, hint: "Maroko, Alžírsko, Tunisko" },
-
-            // --- Řeky ---
-            { name: "Volha", type: "Řeka", lat: 46.5, lng: 48.5, radius: 9, hint: "Rusko" },
-            { name: "Dunaj", type: "Řeka", lat: 45.2, lng: 29.6, radius: 9, hint: "Německo, Rakousko, Slovensko, Maďarsko, Rumunsko atd." },
-            { name: "Labe", type: "Řeka", lat: 53.8, lng: 8.7, radius: 8, hint: "Česko, Německo" },
-            { name: "Nil", type: "Řeka", lat: 30.1, lng: 31.1, radius: 10, hint: "Egypt, Súdán, Uganda, Etiopie" },
-            { name: "Amazonka", type: "Řeka", lat: -0.1, lng: -50.0, radius: 10, hint: "Brazílie, Peru, Kolumbie" },
-            { name: "Mississippi", type: "Řeka", lat: 29.1, lng: -89.2, radius: 9, hint: "USA" },
-            { name: "Kongo", type: "Řeka", lat: -6.0, lng: 12.4, radius: 9, hint: "Demokratická republika Kongo, Konžská republika" },
-
-            // --- Jezera ---
-            { name: "Kaspické moře (Jezero)", type: "Jezero", lat: 42.0, lng: 50.0, radius: 10, hint: "Rusko, Kazachstán, Turkmenistán, Írán, Ázerbájdžán" },
-            { name: "Bajkal", type: "Jezero", lat: 53.5, lng: 108.1, radius: 8, hint: "Rusko (Sibiř)" },
-            { name: "Viktoriino jezero", type: "Jezero", lat: -1.0, lng: 33.0, radius: 8, hint: "Tanzanie, Uganda, Keňa" },
-            { name: "Titicaca", type: "Jezero", lat: -15.8, lng: -69.3, radius: 8, hint: "Peru, Bolívie" },
-            { name: "Hořejší jezero", type: "Jezero", lat: 47.7, lng: -87.5, radius: 8, hint: "USA, Kanada" }
+            { name: "Alpy (Mt. Blanc)", type: "Pohoří", lat: 45.8, lng: 6.8, radius: 8, hint: "Francie, Itálie, Švýcarsko, Rakousko" },
+            { name: "Himaláje (Mt. Everest)", type: "Pohoří", lat: 27.9, lng: 86.9, radius: 8, hint: "Nepál, Čína" },
+            { name: "Dunaj", type: "Řeka", lat: 45.2, lng: 29.6, radius: 9, hint: "Protéká mnoha evropskými státy" },
+            { name: "Labe", type: "Řeka", lat: 53.8, lng: 8.7, radius: 8, hint: "Česko a Německo" },
+            { name: "Nil", type: "Řeka", lat: 30.1, lng: 31.1, radius: 10, hint: "Egypt, Súdán" },
+            { name: "Amazonka", type: "Řeka", lat: -0.1, lng: -50.0, radius: 10, hint: "Jižní Amerika (Brazílie)" }
         ];
 
-        let activePlaces = [];
-        let remainingPlaces = [];
-        let current = null;
-        let score = 0;
+        let currentMode = null;
+        let activePlaces = [], remainingPlaces = [], current = null, score = 0;
+        let timeLeft = 60, timerInterval = null, gameRunning = false;
 
         const map = L.map('map').setView([20, 0], 2);
+        const tileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18, attribution: 'Tiles &copy; Esri' }).addTo(map);
 
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-            maxZoom: 18,
-            attribution: 'Tiles &copy; Esri'
-        }).addTo(map);
-
-        const targetNameElem = document.getElementById('target-name');
-        const scoreElem = document.getElementById('score');
         const menuScreen = document.getElementById('menu-screen');
         const headerElem = document.getElementById('header');
+        const targetNameElem = document.getElementById('target-name');
+        const scoreElem = document.getElementById('score');
+        const scoreDisplay = document.getElementById('score-display');
+        const relaxControls = document.getElementById('relax-controls');
 
-        function startGame(category) {
-            if (category === 'Vše') {
-                activePlaces = [...allPlaces];
-            } else {
-                activePlaces = allPlaces.filter(p => p.type === category);
-            }
+        loadLeaderboardPreview();
 
-            if (activePlaces.length === 0) {
-                alert("V této kategorii nejsou žádná místa.");
-                return;
-            }
-
-            // Zkopírujeme místa do zbývajících a zamícháme je
-            remainingPlaces = [...activePlaces];
-            shuffleArray(remainingPlaces);
-
-            menuScreen.style.display = 'none';
-            headerElem.style.display = 'flex';
-            
-            score = 0;
-            scoreElem.innerText = score;
-            map.invalidateSize();
-            nextQuestion();
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            html.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
         }
 
-        // Pomocná funkce na náhodné promíchání pole
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -336,65 +219,142 @@
             }
         }
 
+        function startRelaxGame(category) {
+            currentMode = 'relax';
+            activePlaces = category === 'Vše' ? [...allPlaces] : allPlaces.filter(p => p.type === category);
+            remainingPlaces = [...activePlaces];
+            shuffleArray(remainingPlaces);
+
+            menuScreen.style.display = 'none';
+            headerElem.style.display = 'flex';
+            relaxControls.style.display = 'flex';
+            
+            score = 0;
+            scoreElem.innerText = score;
+            scoreDisplay.innerHTML = `Skóre: <span id="score" style="font-weight: 700; color: #fde047;">0</span>`;
+            
+            map.invalidateSize();
+            nextQuestion();
+        }
+
+        function startCompetitionGame() {
+            currentMode = 'competition';
+            activePlaces = [...allPlaces];
+            
+            menuScreen.style.display = 'none';
+            headerElem.style.display = 'flex';
+            relaxControls.style.display = 'none';
+            
+            score = 0;
+            timeLeft = 60;
+            gameRunning = true;
+            scoreElem.innerText = score;
+            scoreDisplay.innerHTML = `⏱️ <span id="timer">60</span>s | Skóre: <span id="score" style="color: #fde047;">0</span>`;
+
+            map.invalidateSize();
+            nextQuestion();
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const timerElem = document.getElementById('timer');
+                if (timerElem) timerElem.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    endCompetitionGame();
+                }
+            }, 1000);
+        }
+
         function returnToMenu() {
+            if (timerInterval) clearInterval(timerInterval);
+            gameRunning = false;
             menuScreen.style.display = 'flex';
             headerElem.style.display = 'none';
+            loadLeaderboardPreview();
         }
 
         function nextQuestion() {
-            // Pokud už jsme prošli všechna místa, zamícháme je znovu
-            if (remainingPlaces.length === 0) {
-                alert("Skvělé! Prošel/a jsi všechna místa v této kategorii. Začínáme kolo znova!");
-                remainingPlaces = [...activePlaces];
-                shuffleArray(remainingPlaces);
+            if (currentMode === 'relax') {
+                if (remainingPlaces.length === 0) {
+                    alert("Prošel/a jsi všechna místa v této kategorii! Začínáme znovu.");
+                    remainingPlaces = [...activePlaces];
+                    shuffleArray(remainingPlaces);
+                }
+                current = remainingPlaces.pop();
+                targetNameElem.innerText = current.name;
+            } else if (currentMode === 'competition' && gameRunning) {
+                const index = Math.floor(Math.random() * activePlaces.length);
+                current = activePlaces[index];
+                targetNameElem.innerText = current.name;
             }
-
-            // Vezmeme další v pořadí z promíchaného seznamu
-            current = remainingPlaces.pop();
-            targetNameElem.innerText = `${current.name}`;
         }
 
-        function showHint() {
-            if (current) {
-                alert(`💡 Nápověda: ${current.hint}`);
-            }
+        function showHint() { 
+            if (current && current.hint) alert(`💡 Nápověda: ${current.hint}`); 
         }
 
         function skipQuestion() {
             if (!current) return;
-            alert(`Nevadí! Správná odpověď byla: ${current.name}. Ukazuji na mapě.`);
-            
-            L.marker([current.lat, current.lng]).addTo(map)
-                .bindPopup(`<b>${current.type}: ${current.name}</b>`)
-                .openPopup();
-
+            alert(`Správná odpověď byla: ${current.name}. Ukazuji na mapě.`);
+            L.marker([current.lat, current.lng]).addTo(map).bindPopup(`<b>${current.name}</b>`).openPopup();
             nextQuestion();
         }
 
+        function endCompetitionGame() {
+            clearInterval(timerInterval);
+            gameRunning = false;
+            alert(`Konec času! Tvoje skóre je: ${score}`);
+
+            let playerName = prompt("Zadej své jméno do žebříčku třídy:");
+            if (playerName) {
+                fetch(SHEETDB_API, {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ data: [{ name: playerName, score: score }] })
+                }).then(() => {
+                    returnToMenu();
+                }).catch(() => {
+                    alert("Chyba při ukládání skóre do tabulky.");
+                    returnToMenu();
+                });
+            } else {
+                returnToMenu();
+            }
+        }
+
+        function loadLeaderboardPreview() {
+            fetch(SHEETDB_API)
+                .then(res => res.json())
+                .then(data => {
+                    const lbDiv = document.getElementById('leaderboard-preview');
+                    if (!data || data.length === 0) {
+                        lbDiv.innerHTML = "<div style='text-align:center; opacity:0.7;'>Zatím žádné výsledky.</div>";
+                        return;
+                    }
+                    data.sort((a, b) => parseInt(b.score) - parseInt(a.score));
+                    let html = "<div style='font-weight:600; margin-bottom:4px; color:#fde047;'>Top výsledky:</div>";
+                    for (let i = 0; i < Math.min(3, data.length); i++) {
+                        html += `<div class="lb-item"><span>${i+1}. ${data[i].name}</span> <b>${data[i].score} b</b></div>`;
+                    }
+                    lbDiv.innerHTML = html;
+                }).catch(() => {
+                    document.getElementById('leaderboard-preview').innerHTML = "<div style='text-align:center; opacity:0.7;'>Žebříček se nepodařilo načíst.</div>";
+                });
+        }
+
         map.on('click', function(e) {
-            if (menuScreen.style.display === 'flex' || !current) return;
-
-            const clickedLat = e.latlng.lat;
-            const clickedLng = e.latlng.lng;
-
-            const latDiff = Math.abs(clickedLat - current.lat);
-            const lngDiff = Math.abs(clickedLng - current.lng);
-
-            if (latDiff <= current.radius && lngDiff <= current.radius) {
-                alert(`Správně! Našel/a jsi: ${current.name}.`);
+            if (menuScreen.style.display !== 'none' || !current) return;
+            
+            if (Math.abs(e.latlng.lat - current.lat) <= current.radius && Math.abs(e.latlng.lng - current.lng) <= current.radius) {
                 score++;
-                scoreElem.innerText = score;
-                
-                L.marker([current.lat, current.lng]).addTo(map)
-                    .bindPopup(`<b>${current.type}: ${current.name}</b>`)
-                    .openPopup();
-
+                document.getElementById('score').innerText = score;
+                L.marker([current.lat, current.lng]).addTo(map).bindPopup(`<b>${current.name}</b>`).openPopup();
                 nextQuestion();
             } else {
-                alert(`Bohužel vedle! Zkus to znovu nebo použij nápovědu.`);
+                if (currentMode === 'relax') {
+                    alert("Bohužel vedle!");
+                }
             }
         });
     </script>
-
 </body>
 </html>
