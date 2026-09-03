@@ -17,6 +17,7 @@
             flex-direction: column;
             height: 100vh;
             background-color: #f3f4f6;
+            overflow: hidden;
         }
         /* Úvodní menu obrazovka */
         #menu-screen {
@@ -35,30 +36,31 @@
             padding: 20px;
             box-sizing: border-box;
             text-align: center;
+            overflow-y: auto;
         }
         #menu-screen h1 {
             margin-bottom: 10px;
-            font-size: 2rem;
+            font-size: 1.8rem;
         }
         #menu-screen p {
-            margin-bottom: 30px;
-            font-size: 1.1rem;
+            margin-bottom: 20px;
+            font-size: 1rem;
             opacity: 0.9;
         }
         .category-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
             width: 100%;
-            max-width: 600px;
+            max-width: 500px;
         }
         .btn-category {
             background: rgba(255, 255, 255, 0.15);
             border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
-            padding: 14px 20px;
-            border-radius: 14px;
-            font-size: 1rem;
+            padding: 12px 15px;
+            border-radius: 12px;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
             backdrop-filter: blur(5px);
@@ -80,37 +82,44 @@
             background: #facc15;
         }
 
-        /* Herní hlavička */
+        /* Herní hlavička - optimalizovaná pro mobily */
         #header {
             background: linear-gradient(135deg, #1e3a8a, #3b82f6);
             color: white;
-            padding: 12px 20px;
-            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
+            padding: 10px 12px;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
             z-index: 1000;
-            border-bottom-left-radius: 28px;
-            border-bottom-right-radius: 28px;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
+            width: 100%;
+            gap: 6px;
         }
         .header-left, .header-right {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 5px;
         }
         .btn-action {
             background: rgba(255, 255, 255, 0.2);
             border: none;
             color: white;
-            padding: 6px 12px;
-            border-radius: 10px;
+            padding: 6px 10px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.78rem;
             font-family: 'Plus Jakarta Sans', sans-serif;
             transition: background 0.2s;
+            white-space: nowrap;
         }
         .btn-action:hover {
             background: rgba(255, 255, 255, 0.35);
@@ -125,42 +134,43 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            flex-grow: 1;
+            text-align: center;
         }
         h2 {
             margin: 0;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.8rem;
             opacity: 0.9;
         }
         #target-card {
             background: rgba(255, 255, 255, 0.15);
-            padding: 4px 16px;
+            padding: 3px 12px;
             border-radius: 50px;
             backdrop-filter: blur(8px);
-            margin-top: 4px;
+            margin-top: 2px;
         }
         #target-name {
             color: #fde047;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
         #scoreboard {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 500;
             background: rgba(0, 0, 0, 0.15);
-            padding: 6px 14px;
-            border-radius: 20px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            white-space: nowrap;
         }
         #map {
             flex-grow: 1;
             width: 100%;
         }
         .leaflet-popup-content-wrapper {
-            border-radius: 16px;
-            padding: 6px;
+            border-radius: 12px;
+            padding: 4px;
             font-family: 'Plus Jakarta Sans', sans-serif;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -184,19 +194,23 @@
 
     <!-- Herní rozhraní -->
     <div id="header" style="display: none;">
-        <div class="header-left">
-            <button class="btn-action" onclick="returnToMenu()">← Menu</button>
-        </div>
-        <div class="header-center">
-            <h2>Hledá se:</h2>
-            <div id="target-card">
-                <span id="target-name">Načítám...</span>
+        <div class="header-row">
+            <div class="header-left">
+                <button class="btn-action" onclick="returnToMenu()">← Menu</button>
+            </div>
+            <div class="header-center">
+                <h2>Hledá se:</h2>
+                <div id="target-card">
+                    <span id="target-name">Načítám...</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div id="scoreboard">Skóre: <span id="score" style="font-weight: 700; color: #fde047;">0</span></div>
             </div>
         </div>
-        <div class="header-right">
+        <div class="header-row" style="justify-content: center; gap: 10px;">
             <button class="btn-action btn-hint" onclick="showHint()">💡 Nápověda</button>
             <button class="btn-action" onclick="skipQuestion()">Další ➡️</button>
-            <div id="scoreboard">Skóre: <span id="score" style="font-weight: 700; color: #fde047;">0</span></div>
         </div>
     </div>
 
